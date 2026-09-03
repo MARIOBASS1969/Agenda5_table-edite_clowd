@@ -357,45 +357,6 @@
         color: var(--ink-faint);
       }
 
-      .search-field {
-        position: relative;
-        margin-bottom: 14px;
-      }
-      .search-field input {
-        font-family: "Inter", sans-serif;
-        font-size: 15px;
-        padding: 10px 40px 10px 12px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--surface);
-        color: var(--ink);
-        width: 100%;
-      }
-      .search-field input:focus {
-        outline: 2px solid var(--teal);
-        outline-offset: 1px;
-        border-color: var(--teal);
-      }
-      .search-field button {
-        position: absolute;
-        top: 50%;
-        right: 6px;
-        transform: translateY(-50%);
-        width: 30px;
-        height: 30px;
-        border: none;
-        background: none;
-        color: var(--ink-faint);
-        font-size: 18px;
-        line-height: 1;
-        cursor: pointer;
-        border-radius: 6px;
-      }
-      .search-field button:hover {
-        background: #f2f4f7;
-        color: var(--coral);
-      }
-
       .empty-state {
         text-align: center;
         padding: 50px 20px;
@@ -669,24 +630,6 @@
       <div class="list-heading">
         <h2>Tarefas</h2>
         <span class="list-count" id="listCount"></span>
-      </div>
-
-      <div class="search-field">
-        <input
-          type="text"
-          id="inpBusca"
-          placeholder="Buscar por descrição..."
-          aria-label="Buscar tarefas por descrição"
-        />
-        <button
-          type="button"
-          id="clearBuscaBtn"
-          title="Limpar busca"
-          aria-label="Limpar busca"
-          style="display: none"
-        >
-          &times;
-        </button>
       </div>
 
       <div id="taskList"></div>
@@ -1067,37 +1010,6 @@
         const totalGeralEl = document.getElementById("totalGeral");
         const qtdTarefasEl = document.getElementById("qtdTarefas");
         const listCountEl = document.getElementById("listCount");
-        const inpBusca = document.getElementById("inpBusca");
-        const clearBuscaBtn = document.getElementById("clearBuscaBtn");
-
-        // Remove acentos e caixa para uma busca mais tolerante
-        // (ex.: "pagamento" encontra "Pagaménto").
-        function normalizarBusca(str) {
-          return String(str || "")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .trim();
-        }
-
-        function getTarefasFiltradas() {
-          const termo = normalizarBusca(inpBusca.value);
-          if (!termo) return tasks;
-          return tasks.filter((t) =>
-            normalizarBusca(t.description).includes(termo),
-          );
-        }
-
-        inpBusca.addEventListener("input", () => {
-          clearBuscaBtn.style.display = inpBusca.value ? "block" : "none";
-          render();
-        });
-        clearBuscaBtn.addEventListener("click", () => {
-          inpBusca.value = "";
-          clearBuscaBtn.style.display = "none";
-          inpBusca.focus();
-          render();
-        });
 
         function render() {
           try {
@@ -1108,8 +1020,7 @@
         }
 
         function renderInner() {
-          // total geral considera SEMPRE todas as tarefas, independente do
-          // filtro de busca — é o saldo real do livro razão.
+          // total geral
           const totalGeral = tasks.reduce(
             (acc, t) => acc + sumValues(t.values || []),
             0,
@@ -1120,15 +1031,8 @@
             tasks.length === 1
               ? "1 tarefa registrada"
               : `${tasks.length} tarefas registradas`;
-
-          const tarefasFiltradas = getTarefasFiltradas();
-          const filtrando = normalizarBusca(inpBusca.value) !== "";
-
-          listCountEl.textContent = filtrando
-            ? `${tarefasFiltradas.length} de ${tasks.length} itens`
-            : tasks.length === 1
-              ? "1 item"
-              : `${tasks.length} itens`;
+          listCountEl.textContent =
+            tasks.length === 1 ? "1 item" : `${tasks.length} itens`;
 
           taskListEl.innerHTML = "";
 
@@ -1137,13 +1041,8 @@
             return;
           }
 
-          if (tarefasFiltradas.length === 0) {
-            taskListEl.innerHTML = `<div class="empty-state">Nenhuma tarefa encontrada para "${escapeHtml(inpBusca.value.trim())}".</div>`;
-            return;
-          }
-
           // Mantém a ordem do array: tarefas novas entram no início (ver submit handler)
-          tarefasFiltradas.forEach((task) => {
+          tasks.forEach((task) => {
             try {
               const st = statusInfo(task.date);
               const total = sumValues(task.values);
