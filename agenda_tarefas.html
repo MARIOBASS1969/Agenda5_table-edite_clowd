@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda de Tarefas — Livro Razão</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #eef1f6;
+        --surface: #ffffff;
+        --ink: #1f2a37;
+        --ink-soft: #5b6b7c;
+        --ink-faint: #8c99a8;
+        --line: #d7dee7;
+        --teal: #0f766e;
+        --teal-bg: #e3f3f1;
+        --amber: #b4790a;
+        --amber-bg: #fbf0dc;
+        --coral: #c43e3e;
+        --coral-bg: #fbe7e7;
+        --radius: 10px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        padding: 24px 16px 80px;
+      }
+
+      .wrap {
+        max-width: 840px;
+        margin: 0 auto;
+      }
+
+      /* ---------- Header / Ledger Balance ---------- */
+      header.ledger {
+        background: var(--ink);
+        color: #fff;
+        border-radius: var(--radius);
+        padding: 28px 28px 22px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 22px;
+      }
+      header.ledger::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: repeating-linear-gradient(
+          90deg,
+          var(--teal) 0 18px,
+          var(--amber) 18px 36px,
+          var(--coral) 36px 54px
+        );
+        opacity: 0.9;
+      }
+      .ledger-eyebrow {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #9fb0c4;
+        margin: 6px 0 4px;
+      }
+      h1 {
+        font-family: "Fraunces", serif;
+        font-weight: 600;
+        font-size: clamp(26px, 5vw, 34px);
+        margin: 0 0 18px;
+        letter-spacing: -0.01em;
+      }
+      .balance-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+      .balance-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #9fb0c4;
+        margin-bottom: 6px;
+      }
+      .balance-value {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 600;
+        font-size: clamp(28px, 6vw, 40px);
+        color: #fff;
+      }
+      .balance-value.negativo {
+        color: #f0a3a3;
+      }
+      .balance-sub {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        color: #9fb0c4;
+      }
+
+      /* ---------- Card / Form ---------- */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px;
+        margin-bottom: 20px;
+      }
+      .card h2 {
+        font-family: "Fraunces", serif;
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 16px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .field label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-soft);
+      }
+      input[type="text"],
+      input[type="date"],
+      input[type="number"] {
+        font-family: "Inter", sans-serif;
+        font-size: 15px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfe;
+        color: var(--ink);
+        width: 100%;
+      }
+      input:focus {
+        outline: 2px solid var(--teal);
+        outline-offset: 1px;
+        border-color: var(--teal);
+      }
+
+      .row2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      @media (max-width: 520px) {
+        .row2 {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .values-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .value-item {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .value-item input {
+        flex: 1;
+      }
+      .value-item .val-desc {
+        flex: 2;
+      }
+      .value-item .val-num.negativo {
+        color: var(--coral);
+        font-weight: 600;
+      }
+      .icon-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--coral);
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        font-size: 18px;
+        line-height: 1;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .icon-btn:hover {
+        background: var(--coral-bg);
+      }
+
+      .add-value-btn {
+        align-self: flex-start;
+        margin-top: 4px;
+        background: none;
+        border: 1px dashed var(--ink-faint);
+        color: var(--ink-soft);
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .add-value-btn:hover {
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+
+      .field-hint {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-faint);
+        margin-top: 2px;
+      }
+
+      .field-error {
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--coral);
+        min-height: 0;
+        display: none;
+      }
+      .field-error.show {
+        display: block;
+      }
+      input.input-invalid {
+        border-color: var(--coral) !important;
+        outline: 2px solid var(--coral) !important;
+        outline-offset: 1px;
+      }
+
+      .form-total {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 14px;
+        color: var(--ink-soft);
+        margin: 10px 0 16px;
+      }
+      .form-total strong {
+        color: var(--ink);
+      }
+      .form-total strong.negativo {
+        color: var(--coral);
+      }
+
+      .btn {
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 11px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: var(--teal);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #0c5f58;
+      }
+      .btn-ghost {
+        background: none;
+        color: var(--ink-soft);
+        border: 1px solid var(--line);
+      }
+      .btn-ghost:hover {
+        background: #f2f4f7;
+      }
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      /* ---------- Task list ---------- */
+      .list-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 26px 2px 12px;
+      }
+      .list-heading h2 {
+        font-family: "Fraunces", serif;
+        font-size: 19px;
+        margin: 0;
+      }
+      .list-count {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        color: var(--ink-faint);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: var(--ink-faint);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        border: 1px dashed var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+      }
+
+      .task {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        margin-bottom: 12px;
+        display: flex;
+        overflow: hidden;
+      }
+      .task-tab {
+        width: 6px;
+        flex-shrink: 0;
+      }
+      .task-tab.hoje {
+        background: var(--amber);
+      }
+      .task-tab.falta {
+        background: var(--teal);
+      }
+      .task-tab.passou {
+        background: var(--coral);
+      }
+
+      .task-body {
+        flex: 1;
+        padding: 16px 18px;
+      }
+      .task-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .task-date {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+      .task-desc {
+        font-family: "Fraunces", serif;
+        font-weight: 600;
+        font-size: 17px;
+        margin: 4px 0 8px;
+        color: var(--ink);
+        word-break: break-word;
+      }
+      .stamp {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transform: rotate(-2deg);
+        white-space: nowrap;
+      }
+      .stamp.hoje {
+        background: var(--amber-bg);
+        color: var(--amber);
+        border: 1px solid var(--amber);
+      }
+      .stamp.falta {
+        background: var(--teal-bg);
+        color: var(--teal);
+        border: 1px solid var(--teal);
+      }
+      .stamp.passou {
+        background: var(--coral-bg);
+        color: var(--coral);
+        border: 1px solid var(--coral);
+      }
+
+      /* ---------- Alerta piscante (faltam 2 dias ou menos) ---------- */
+      @keyframes piscarFundo {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.25;
+        }
+      }
+      @keyframes piscarBorda {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(196, 62, 62, 0.55);
+        }
+        50% {
+          box-shadow: 0 0 0 4px rgba(196, 62, 62, 0);
+        }
+      }
+      .task.urgente {
+        border-color: var(--coral);
+        animation: piscarBorda 1.1s infinite;
+      }
+      .task-tab.urgente {
+        background: var(--coral) !important;
+        animation: piscarFundo 1.1s infinite;
+      }
+      .stamp.urgente {
+        background: var(--coral-bg) !important;
+        color: var(--coral) !important;
+        border: 1px solid var(--coral) !important;
+        animation: piscarFundo 1.1s infinite;
+      }
+
+      .task-values {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 14px;
+        color: var(--ink-soft);
+        margin: 8px 0 4px;
+        padding-left: 0;
+        list-style: none;
+      }
+      .task-values li {
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 0;
+        border-bottom: 1px dashed var(--line);
+        max-width: 340px;
+      }
+      .task-values li span.valor-negativo {
+        color: var(--coral);
+        font-weight: 600;
+      }
+      .task-total {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-top: 8px;
+      }
+      .task-total.negativo {
+        color: var(--coral);
+      }
+
+      .task-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .task-actions button {
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 7px 12px;
+        border-radius: 7px;
+        cursor: pointer;
+      }
+      .btn-edit {
+        background: none;
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+      }
+      .btn-edit:hover {
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+      .btn-delete {
+        background: none;
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+      }
+      .btn-delete:hover {
+        border-color: var(--coral);
+        color: var(--coral);
+      }
+      .btn-save {
+        background: var(--teal);
+        border: none;
+        color: #fff;
+      }
+      .btn-save:hover {
+        background: #0c5f58;
+      }
+      .btn-cancel {
+        background: none;
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+      }
+
+      footer {
+        text-align: center;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-faint);
+        margin-top: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="ledger">
+        <div class="ledger-eyebrow">Registro de tarefas</div>
+        <h1>Agenda de Tarefas</h1>
+        <div class="balance-row">
+          <div>
+            <div class="balance-label">Total geral</div>
+            <div class="balance-value" id="totalGeral">R$ 0,00</div>
+          </div>
+          <div class="balance-sub" id="qtdTarefas">0 tarefas registradas</div>
+        </div>
+      </header>
+
+      <section class="card" id="formCard">
+        <h2 id="formTitle">Nova tarefa</h2>
+        <form id="taskForm">
+          <div class="row2">
+            <div class="field">
+              <label for="inpData">Data</label>
+              <input type="date" id="inpData" />
+              <div class="field-error" id="errData"></div>
+            </div>
+            <div class="field">
+              <label for="inpDesc">Descrição</label>
+              <input
+                type="text"
+                id="inpDesc"
+                placeholder="Ex.: Pagamento fornecedor"
+              />
+              <div class="field-error" id="errDesc"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Valores</label>
+            <div class="values-list" id="valuesList"></div>
+            <button type="button" class="add-value-btn" id="addValueBtn">
+              + adicionar valor
+            </button>
+            <div class="field-hint">
+              Use o sinal de menos para abater um valor do total (ex.: -40,00).
+            </div>
+          </div>
+
+          <div class="form-total">
+            Total desta tarefa: <strong id="formTotal">R$ 0,00</strong>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              Adicionar tarefa
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              id="cancelEditBtn"
+              style="display: none"
+            >
+              Cancelar edição
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <div class="list-heading">
+        <h2>Tarefas</h2>
+        <span class="list-count" id="listCount"></span>
+      </div>
+
+      <div id="taskList"></div>
+
+      <div
+        id="avisoStorage"
+        style="display: none; background: var(--amber-bg); border: 1px solid var(--amber); color: var(--amber); border-radius: var(--radius); padding: 12px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; margin-bottom: 20px;"
+      >
+        Este ambiente não permite salvar dados de forma permanente. As
+        tarefas vão funcionar normalmente, mas serão perdidas ao recarregar
+        a página.
+      </div>
+
+      <footer>
+        Os dados ficam salvos apenas neste navegador (localStorage).
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        // Diagnóstico visível: se qualquer erro de JavaScript acontecer em
+        // qualquer parte da página, mostra um aviso no topo em vez de falhar
+        // silenciosamente. Isso ajuda a identificar problemas específicos do
+        // navegador/ambiente onde a página está sendo aberta.
+        window.addEventListener("error", function (ev) {
+          try {
+            let banner = document.getElementById("diagBanner");
+            if (!banner) {
+              banner = document.createElement("div");
+              banner.id = "diagBanner";
+              banner.style.cssText =
+                "position:fixed;top:0;left:0;right:0;z-index:9999;background:#c43e3e;color:#fff;padding:12px 16px;font-family:monospace;font-size:12px;white-space:pre-wrap;box-shadow:0 2px 8px rgba(0,0,0,.3);";
+              document.body.prepend(banner);
+            }
+            const loc = ev.filename
+              ? " (linha " + ev.lineno + ")"
+              : "";
+            banner.textContent =
+              "Erro no script — copie esta mensagem e envie ao Claude: " +
+              (ev.message || String(ev)) +
+              loc;
+          } catch (e) {
+            // se nem isso funcionar, não há mais nada a fazer
+          }
+        });
+
+        const STORAGE_KEY = "agenda_tarefas_v1";
+        let tasks = [];
+        let editingId = null;
+        let storageDisponivel = true;
+        let memoriaFallback = null; // usado se localStorage não puder ser acessado
+
+        // ---------- Storage ----------
+        // Em alguns ambientes de pré-visualização (iframes com origem restrita),
+        // o acesso ao localStorage lança um erro de segurança. Para o app nunca
+        // travar por causa disso, se isso acontecer passamos a guardar os dados
+        // apenas em memória durante a sessão (não persiste ao recarregar a página).
+        function storageGet(key) {
+          try {
+            return localStorage.getItem(key);
+          } catch (e) {
+            storageDisponivel = false;
+            return memoriaFallback;
+          }
+        }
+        function storageSet(key, value) {
+          try {
+            localStorage.setItem(key, value);
+          } catch (e) {
+            storageDisponivel = false;
+            memoriaFallback = value;
+          }
+        }
+
+        function loadTasks() {
+          try {
+            const raw = storageGet(STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            tasks = Array.isArray(parsed) ? parsed.map(normalizeTask) : [];
+          } catch (e) {
+            tasks = [];
+          }
+        }
+
+        // Garante que uma tarefa sempre tenha o formato esperado, mesmo que
+        // tenha sido salva por uma versão anterior do app (ex.: sem a lista
+        // de "values", ou com um único campo "valor"). Isso evita que um
+        // registro antigo quebre a renderização de toda a lista.
+        function normalizeTask(t) {
+          if (!t || typeof t !== "object") {
+            return { id: uid(), date: todayISO(), description: "", values: [] };
+          }
+          let values = [];
+          if (Array.isArray(t.values)) {
+            values = t.values.map((v) => ({
+              desc: v && v.desc ? String(v.desc) : "",
+              valor:
+                v && typeof v.valor !== "undefined"
+                  ? Number(v.valor) || 0
+                  : typeof v === "number"
+                    ? v
+                    : 0,
+            }));
+          } else if (typeof t.valor !== "undefined") {
+            // formato bem antigo: um único valor numérico por tarefa
+            values = [{ desc: "", valor: Number(t.valor) || 0 }];
+          }
+          return {
+            id: t.id ? String(t.id) : uid(),
+            date: t.date && /^\d{4}-\d{2}-\d{2}$/.test(t.date) ? t.date : todayISO(),
+            description: t.description ? String(t.description) : "",
+            values,
+          };
+        }
+
+        function saveTasks() {
+          try {
+            storageSet(STORAGE_KEY, JSON.stringify(tasks));
+          } catch (e) {
+            // nunca deixa um erro de armazenamento impedir o app de continuar funcionando
+          }
+        }
+
+        // ---------- Helpers ----------
+        function uid() {
+          return (
+            "t" +
+            Date.now().toString(36) +
+            Math.random().toString(36).slice(2, 7)
+          );
+        }
+
+        function formatCurrency(n) {
+          return n.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+        }
+
+        // Converte texto digitado (aceita vírgula OU ponto decimal e sinal de menos) em número.
+        // Ex.: "-40,00" -> -40 | "1.234,56" -> 1234.56 | "12.5" -> 12.5
+        function parseValorBR(str) {
+          if (str === null || str === undefined) return 0;
+          let s = String(str).trim().replace(/\s/g, "");
+          if (s === "" || s === "-") return 0;
+          if (s.indexOf(",") > -1 && s.indexOf(".") > -1) {
+            // ponto = milhar, vírgula = decimal
+            s = s.replace(/\./g, "").replace(",", ".");
+          } else if (s.indexOf(",") > -1) {
+            s = s.replace(",", ".");
+          }
+          const n = parseFloat(s);
+          return isNaN(n) ? 0 : n;
+        }
+
+        // Formata um número para exibir no campo de texto (edição), com vírgula decimal.
+        function formatValorInput(n) {
+          if (n === null || n === undefined || n === "" || isNaN(n)) return "";
+          if (n === 0) return "";
+          return n.toFixed(2).replace(".", ",");
+        }
+
+        function formatDateBR(isoDate) {
+          // isoDate: YYYY-MM-DD
+          const [y, m, d] = isoDate.split("-");
+          return `${d}/${m}/${y}`;
+        }
+
+        function todayISO() {
+          const d = new Date();
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          return `${y}-${m}-${day}`;
+        }
+
+        function dayDiff(isoDate) {
+          // returns positive if future, negative if past, 0 if today (calendar days, ignoring time)
+          const [y, m, d] = isoDate.split("-").map(Number);
+          const target = new Date(y, m - 1, d);
+          const now = new Date();
+          const todayMid = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+          );
+          const diffMs = target - todayMid;
+          return Math.round(diffMs / (1000 * 60 * 60 * 24));
+        }
+
+        // Diferença em anos/meses/dias entre duas datas (from é sempre <= to)
+        function calendarDiff(from, to) {
+          let years = to.getFullYear() - from.getFullYear();
+          let months = to.getMonth() - from.getMonth();
+          let days = to.getDate() - from.getDate();
+
+          if (days < 0) {
+            months -= 1;
+            const prevMonthLastDay = new Date(
+              to.getFullYear(),
+              to.getMonth(),
+              0,
+            ).getDate();
+            days += prevMonthLastDay;
+          }
+          if (months < 0) {
+            years -= 1;
+            months += 12;
+          }
+          return { years, months, days };
+        }
+
+        // Formata "1 ano, 2 meses e 10 dias"
+        function formatDuration(years, months, days) {
+          const parts = [];
+          if (years > 0) parts.push(years === 1 ? "1 ano" : `${years} anos`);
+          if (months > 0)
+            parts.push(months === 1 ? "1 mês" : `${months} meses`);
+          if (days > 0 || parts.length === 0)
+            parts.push(days === 1 ? "1 dia" : `${days} dias`);
+
+          if (parts.length === 1) return parts[0];
+          return (
+            parts.slice(0, -1).join(", ") + " e " + parts[parts.length - 1]
+          );
+        }
+
+        function statusInfo(isoDate) {
+          const diff = dayDiff(isoDate);
+
+          if (diff === 0) {
+            return { cls: "hoje", text: "Hoje", urgent: true };
+          }
+
+          const [y, m, d] = isoDate.split("-").map(Number);
+          const target = new Date(y, m - 1, d);
+          const now = new Date();
+          const todayMid = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+          );
+
+          if (diff > 0) {
+            const { years, months, days } = calendarDiff(todayMid, target);
+            // Alerta piscante vermelho quando faltam 2 dias ou menos
+            const urgent = diff <= 2;
+            return {
+              cls: "falta",
+              text: `Faltam ${formatDuration(years, months, days)}`,
+              urgent,
+            };
+          } else {
+            const { years, months, days } = calendarDiff(target, todayMid);
+            return {
+              cls: "passou",
+              text: `Passaram ${formatDuration(years, months, days)}`,
+              urgent: false,
+            };
+          }
+        }
+
+        function sumValues(values) {
+          return values.reduce((acc, v) => acc + (parseFloat(v.valor) || 0), 0);
+        }
+
+        // ---------- Form: dynamic value rows ----------
+        const valuesList = document.getElementById("valuesList");
+        const formTotalEl = document.getElementById("formTotal");
+
+        function addValueRow(desc = "", valor = "") {
+          const row = document.createElement("div");
+          row.className = "value-item";
+          const valorDisplay =
+            valor === "" || valor === null || valor === undefined
+              ? ""
+              : formatValorInput(Number(valor));
+          row.innerHTML = `
+      <input type="text" class="val-desc" placeholder="Item (opcional)" value="${escapeAttr(desc)}">
+      <input type="text" inputmode="decimal" class="val-num" placeholder="0,00" value="${escapeAttr(valorDisplay)}">
+      <button type="button" class="icon-btn" title="Remover valor" aria-label="Remover valor">&times;</button>
+    `;
+          row.querySelector(".icon-btn").addEventListener("click", () => {
+            if (valuesList.children.length > 1) {
+              row.remove();
+              updateFormTotal();
+            }
+          });
+          const numInput = row.querySelector(".val-num");
+          function refreshNegativoClass() {
+            numInput.classList.toggle(
+              "negativo",
+              parseValorBR(numInput.value) < 0,
+            );
+          }
+          row.querySelectorAll("input").forEach((inp) =>
+            inp.addEventListener("input", () => {
+              refreshNegativoClass();
+              updateFormTotal();
+            }),
+          );
+          refreshNegativoClass();
+          valuesList.appendChild(row);
+        }
+
+        function escapeAttr(str) {
+          return String(str).replace(/"/g, "&quot;");
+        }
+
+        function escapeHtml(str) {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        }
+
+        function getFormValues() {
+          return Array.from(valuesList.querySelectorAll(".value-item")).map(
+            (row) => ({
+              desc: row.querySelector(".val-desc").value.trim(),
+              valor: parseValorBR(row.querySelector(".val-num").value),
+            }),
+          );
+        }
+
+        function updateFormTotal() {
+          const total = sumValues(getFormValues());
+          formTotalEl.textContent = formatCurrency(total);
+          formTotalEl.classList.toggle("negativo", total < 0);
+        }
+
+        document
+          .getElementById("addValueBtn")
+          .addEventListener("click", () => addValueRow());
+
+        // ---------- Rendering ----------
+        const taskListEl = document.getElementById("taskList");
+        const totalGeralEl = document.getElementById("totalGeral");
+        const qtdTarefasEl = document.getElementById("qtdTarefas");
+        const listCountEl = document.getElementById("listCount");
+
+        function render() {
+          try {
+            renderInner();
+          } catch (errRender) {
+            console.error("Falha ao renderizar a lista de tarefas:", errRender);
+          }
+        }
+
+        function renderInner() {
+          // total geral
+          const totalGeral = tasks.reduce(
+            (acc, t) => acc + sumValues(t.values || []),
+            0,
+          );
+          totalGeralEl.textContent = formatCurrency(totalGeral);
+          totalGeralEl.classList.toggle("negativo", totalGeral < 0);
+          qtdTarefasEl.textContent =
+            tasks.length === 1
+              ? "1 tarefa registrada"
+              : `${tasks.length} tarefas registradas`;
+          listCountEl.textContent =
+            tasks.length === 1 ? "1 item" : `${tasks.length} itens`;
+
+          taskListEl.innerHTML = "";
+
+          if (tasks.length === 0) {
+            taskListEl.innerHTML = `<div class="empty-state">Nenhuma tarefa por aqui ainda.<br>Use o formulário acima para lançar a primeira.</div>`;
+            return;
+          }
+
+          // Mantém a ordem do array: tarefas novas entram no início (ver submit handler)
+          tasks.forEach((task) => {
+            try {
+              const st = statusInfo(task.date);
+              const total = sumValues(task.values);
+
+              const el = document.createElement("div");
+              el.className = "task" + (st.urgent ? " urgente" : "");
+
+              const valuesHtml =
+                task.values.length > 1
+                  ? `<ul class="task-values">${task.values
+                      .map(
+                        (v) =>
+                          `<li><span>${escapeHtml(v.desc || "Valor")}</span><span class="${v.valor < 0 ? "valor-negativo" : ""}">${formatCurrency(v.valor)}</span></li>`,
+                      )
+                      .join("")}</ul>`
+                  : "";
+
+              el.innerHTML = `
+        <div class="task-tab ${st.cls}${st.urgent ? " urgente" : ""}"></div>
+        <div class="task-body">
+          <div class="task-top">
+            <span class="task-date">${formatDateBR(task.date)}</span>
+            <span class="stamp ${st.cls}${st.urgent ? " urgente" : ""}">${st.text}</span>
+          </div>
+          <div class="task-desc">${escapeHtml(task.description)}</div>
+          ${valuesHtml}
+          <div class="task-total${total < 0 ? " negativo" : ""}">Total: ${formatCurrency(total)}</div>
+          <div class="task-actions">
+            <button class="btn-edit" data-action="edit" data-id="${task.id}">Editar</button>
+            <button class="btn-delete" data-action="delete" data-id="${task.id}">Excluir</button>
+          </div>
+        </div>
+      `;
+              taskListEl.appendChild(el);
+            } catch (errTarefa) {
+              // Nunca deixa um registro com formato inesperado travar a
+              // renderização das demais tarefas.
+              console.error("Falha ao renderizar uma tarefa:", errTarefa, task);
+            }
+          });
+        }
+
+        taskListEl.addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-action]");
+          if (!btn) return;
+          const id = btn.dataset.id;
+          if (btn.dataset.action === "delete") {
+            deleteTask(id);
+          } else if (btn.dataset.action === "edit") {
+            startEdit(id);
+          }
+        });
+
+        function deleteTask(id) {
+          if (
+            confirm("Excluir esta tarefa? Essa ação não pode ser desfeita.")
+          ) {
+            tasks = tasks.filter((t) => t.id !== id);
+            saveTasks();
+            if (editingId === id) resetForm();
+            render();
+          }
+        }
+
+        // ---------- Form: add / edit / save ----------
+        const form = document.getElementById("taskForm");
+        const inpData = document.getElementById("inpData");
+        const inpDesc = document.getElementById("inpDesc");
+        const formTitle = document.getElementById("formTitle");
+        const submitBtn = document.getElementById("submitBtn");
+        const cancelEditBtn = document.getElementById("cancelEditBtn");
+        const errData = document.getElementById("errData");
+        const errDesc = document.getElementById("errDesc");
+
+        function clearFieldError(input, errEl) {
+          input.classList.remove("input-invalid");
+          errEl.classList.remove("show");
+          errEl.textContent = "";
+        }
+
+        function setFieldError(input, errEl, message) {
+          input.classList.add("input-invalid");
+          errEl.textContent = message;
+          errEl.classList.add("show");
+        }
+
+        inpData.addEventListener("input", () => clearFieldError(inpData, errData));
+        inpDesc.addEventListener("input", () => clearFieldError(inpDesc, errDesc));
+
+        // Validação explícita em JS (não depende do "required" nativo do
+        // navegador, que pode ser silenciosamente ignorado em alguns
+        // ambientes embutidos/iframes).
+        function validateForm(date, description) {
+          let valid = true;
+          clearFieldError(inpData, errData);
+          clearFieldError(inpDesc, errDesc);
+
+          if (!date) {
+            setFieldError(inpData, errData, "Informe uma data.");
+            valid = false;
+          }
+          if (!description) {
+            setFieldError(inpDesc, errDesc, "Informe uma descrição.");
+            valid = false;
+          }
+          return valid;
+        }
+
+        function resetForm() {
+          editingId = null;
+          form.reset();
+          valuesList.innerHTML = "";
+          addValueRow();
+          updateFormTotal();
+          formTitle.textContent = "Nova tarefa";
+          submitBtn.textContent = "Adicionar tarefa";
+          cancelEditBtn.style.display = "none";
+          inpData.value = todayISO();
+          clearFieldError(inpData, errData);
+          clearFieldError(inpDesc, errDesc);
+        }
+
+        function startEdit(id) {
+          const task = tasks.find((t) => t.id === id);
+          if (!task) return;
+          editingId = id;
+          inpData.value = task.date;
+          inpDesc.value = task.description;
+          valuesList.innerHTML = "";
+          task.values.forEach((v) => addValueRow(v.desc, v.valor));
+          updateFormTotal();
+          formTitle.textContent = "Editar tarefa";
+          submitBtn.textContent = "Salvar tarefa";
+          cancelEditBtn.style.display = "inline-block";
+          document
+            .getElementById("formCard")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        cancelEditBtn.addEventListener("click", resetForm);
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const date = inpData.value;
+          const description = inpDesc.value.trim();
+          const values = getFormValues().map((v) => ({
+            desc: v.desc,
+            valor: v.valor,
+          }));
+
+          if (!validateForm(date, description)) {
+            return;
+          }
+
+          if (editingId) {
+            const task = tasks.find((t) => t.id === editingId);
+            if (task) {
+              task.date = date;
+              task.description = description;
+              task.values = values;
+            }
+          } else {
+            // Nova tarefa entra no início da lista
+            tasks.unshift({
+              id: uid(),
+              date,
+              description,
+              values,
+            });
+          }
+
+          saveTasks();
+          resetForm();
+          render();
+        });
+
+        // ---------- Init ----------
+        loadTasks();
+        addValueRow();
+        updateFormTotal();
+        inpData.value = todayISO();
+        render();
+        if (!storageDisponivel) {
+          const aviso = document.getElementById("avisoStorage");
+          if (aviso) aviso.style.display = "block";
+        }
+
+        // refresh day counters periodically (in case the page stays open across midnight)
+        setInterval(render, 60 * 1000);
+      })();
+    </script>
+  </body>
+</html>
