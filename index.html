@@ -1,4 +1,3 @@
-Agenda5_table-edite
 <!doctype html>
 <html lang="pt-BR">
   <head>
@@ -109,6 +108,9 @@ Agenda5_table-edite
         font-size: clamp(28px, 6vw, 40px);
         color: #fff;
       }
+      .balance-value.negativo {
+        color: #f0a3a3;
+      }
       .balance-sub {
         font-family: "IBM Plex Mono", monospace;
         font-size: 13px;
@@ -188,12 +190,60 @@ Agenda5_table-edite
       .value-item .val-desc {
         flex: 2;
       }
+      @media (max-width: 480px) {
+        .value-item {
+          flex-wrap: wrap;
+        }
+        .value-item .val-desc {
+          flex: 1 1 100%;
+        }
+        .value-item .val-num {
+          flex: 1;
+        }
+        .value-item .sign-group,
+        .value-item .icon-btn {
+          flex: 0 0 auto;
+        }
+      }
+      .value-item .val-num.negativo {
+        color: var(--coral);
+        font-weight: 600;
+      }
+      .sign-group {
+        display: flex;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .sign-btn {
+        width: 36px;
+        height: 42px;
+        border: none;
+        background: #fff;
+        color: var(--ink-faint);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .sign-btn.sign-pos {
+        border-right: 1px solid var(--line);
+      }
+      .sign-btn.active.sign-pos {
+        background: var(--teal-bg);
+        color: var(--teal);
+      }
+      .sign-btn.active.sign-neg {
+        background: var(--coral-bg);
+        color: var(--coral);
+      }
       .icon-btn {
         border: 1px solid var(--line);
         background: #fff;
         color: var(--coral);
         width: 38px;
-        height: 38px;
+        height: 42px;
         border-radius: 8px;
         font-size: 18px;
         line-height: 1;
@@ -222,6 +272,30 @@ Agenda5_table-edite
         color: var(--teal);
       }
 
+      .field-hint {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-faint);
+        margin-top: 2px;
+      }
+
+      .field-error {
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--coral);
+        min-height: 0;
+        display: none;
+      }
+      .field-error.show {
+        display: block;
+      }
+      input.input-invalid {
+        border-color: var(--coral) !important;
+        outline: 2px solid var(--coral) !important;
+        outline-offset: 1px;
+      }
+
       .form-total {
         font-family: "IBM Plex Mono", monospace;
         font-size: 14px;
@@ -230,6 +304,9 @@ Agenda5_table-edite
       }
       .form-total strong {
         color: var(--ink);
+      }
+      .form-total strong.negativo {
+        color: var(--coral);
       }
 
       .btn {
@@ -413,12 +490,19 @@ Agenda5_table-edite
         border-bottom: 1px dashed var(--line);
         max-width: 340px;
       }
+      .task-values li span.valor-negativo {
+        color: var(--coral);
+        font-weight: 600;
+      }
       .task-total {
         font-family: "IBM Plex Mono", monospace;
         font-size: 15px;
         font-weight: 600;
         color: var(--ink);
         margin-top: 8px;
+      }
+      .task-total.negativo {
+        color: var(--coral);
       }
 
       .task-actions {
@@ -495,7 +579,8 @@ Agenda5_table-edite
           <div class="row2">
             <div class="field">
               <label for="inpData">Data</label>
-              <input type="date" id="inpData" required />
+              <input type="date" id="inpData" />
+              <div class="field-error" id="errData"></div>
             </div>
             <div class="field">
               <label for="inpDesc">Descrição</label>
@@ -503,8 +588,8 @@ Agenda5_table-edite
                 type="text"
                 id="inpDesc"
                 placeholder="Ex.: Pagamento fornecedor"
-                required
               />
+              <div class="field-error" id="errDesc"></div>
             </div>
           </div>
 
@@ -514,6 +599,12 @@ Agenda5_table-edite
             <button type="button" class="add-value-btn" id="addValueBtn">
               + adicionar valor
             </button>
+            <div class="field-hint">
+              Toque em + ou − ao lado do valor para escolher se ele soma ou
+              abate do total (o teclado numérico do celular não tem tecla de
+              menos). No computador também dá para digitar o sinal, ex.:
+              -40,00.
+            </div>
           </div>
 
           <div class="form-total">
@@ -543,6 +634,15 @@ Agenda5_table-edite
 
       <div id="taskList"></div>
 
+      <div
+        id="avisoStorage"
+        style="display: none; background: var(--amber-bg); border: 1px solid var(--amber); color: var(--amber); border-radius: var(--radius); padding: 12px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; margin-bottom: 20px;"
+      >
+        Este ambiente não permite salvar dados de forma permanente. As
+        tarefas vão funcionar normalmente, mas serão perdidas ao recarregar
+        a página.
+      </div>
+
       <footer>
         Os dados ficam salvos apenas neste navegador (localStorage).
       </footer>
@@ -550,21 +650,107 @@ Agenda5_table-edite
 
     <script>
       (function () {
+        // Diagnóstico visível: se qualquer erro de JavaScript acontecer em
+        // qualquer parte da página, mostra um aviso no topo em vez de falhar
+        // silenciosamente. Isso ajuda a identificar problemas específicos do
+        // navegador/ambiente onde a página está sendo aberta.
+        window.addEventListener("error", function (ev) {
+          try {
+            let banner = document.getElementById("diagBanner");
+            if (!banner) {
+              banner = document.createElement("div");
+              banner.id = "diagBanner";
+              banner.style.cssText =
+                "position:fixed;top:0;left:0;right:0;z-index:9999;background:#c43e3e;color:#fff;padding:12px 16px;font-family:monospace;font-size:12px;white-space:pre-wrap;box-shadow:0 2px 8px rgba(0,0,0,.3);";
+              document.body.prepend(banner);
+            }
+            const loc = ev.filename
+              ? " (linha " + ev.lineno + ")"
+              : "";
+            banner.textContent =
+              "Erro no script — copie esta mensagem e envie ao Claude: " +
+              (ev.message || String(ev)) +
+              loc;
+          } catch (e) {
+            // se nem isso funcionar, não há mais nada a fazer
+          }
+        });
+
         const STORAGE_KEY = "agenda_tarefas_v1";
         let tasks = [];
         let editingId = null;
+        let storageDisponivel = true;
+        let memoriaFallback = null; // usado se localStorage não puder ser acessado
 
         // ---------- Storage ----------
+        // Em alguns ambientes de pré-visualização (iframes com origem restrita),
+        // o acesso ao localStorage lança um erro de segurança. Para o app nunca
+        // travar por causa disso, se isso acontecer passamos a guardar os dados
+        // apenas em memória durante a sessão (não persiste ao recarregar a página).
+        function storageGet(key) {
+          try {
+            return localStorage.getItem(key);
+          } catch (e) {
+            storageDisponivel = false;
+            return memoriaFallback;
+          }
+        }
+        function storageSet(key, value) {
+          try {
+            localStorage.setItem(key, value);
+          } catch (e) {
+            storageDisponivel = false;
+            memoriaFallback = value;
+          }
+        }
+
         function loadTasks() {
           try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            tasks = raw ? JSON.parse(raw) : [];
+            const raw = storageGet(STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            tasks = Array.isArray(parsed) ? parsed.map(normalizeTask) : [];
           } catch (e) {
             tasks = [];
           }
         }
+
+        // Garante que uma tarefa sempre tenha o formato esperado, mesmo que
+        // tenha sido salva por uma versão anterior do app (ex.: sem a lista
+        // de "values", ou com um único campo "valor"). Isso evita que um
+        // registro antigo quebre a renderização de toda a lista.
+        function normalizeTask(t) {
+          if (!t || typeof t !== "object") {
+            return { id: uid(), date: todayISO(), description: "", values: [] };
+          }
+          let values = [];
+          if (Array.isArray(t.values)) {
+            values = t.values.map((v) => ({
+              desc: v && v.desc ? String(v.desc) : "",
+              valor:
+                v && typeof v.valor !== "undefined"
+                  ? Number(v.valor) || 0
+                  : typeof v === "number"
+                    ? v
+                    : 0,
+            }));
+          } else if (typeof t.valor !== "undefined") {
+            // formato bem antigo: um único valor numérico por tarefa
+            values = [{ desc: "", valor: Number(t.valor) || 0 }];
+          }
+          return {
+            id: t.id ? String(t.id) : uid(),
+            date: t.date && /^\d{4}-\d{2}-\d{2}$/.test(t.date) ? t.date : todayISO(),
+            description: t.description ? String(t.description) : "",
+            values,
+          };
+        }
+
         function saveTasks() {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          try {
+            storageSet(STORAGE_KEY, JSON.stringify(tasks));
+          } catch (e) {
+            // nunca deixa um erro de armazenamento impedir o app de continuar funcionando
+          }
         }
 
         // ---------- Helpers ----------
@@ -581,6 +767,29 @@ Agenda5_table-edite
             style: "currency",
             currency: "BRL",
           });
+        }
+
+        // Converte texto digitado (aceita vírgula OU ponto decimal e sinal de menos) em número.
+        // Ex.: "-40,00" -> -40 | "1.234,56" -> 1234.56 | "12.5" -> 12.5
+        function parseValorBR(str) {
+          if (str === null || str === undefined) return 0;
+          let s = String(str).trim().replace(/\s/g, "");
+          if (s === "" || s === "-") return 0;
+          if (s.indexOf(",") > -1 && s.indexOf(".") > -1) {
+            // ponto = milhar, vírgula = decimal
+            s = s.replace(/\./g, "").replace(",", ".");
+          } else if (s.indexOf(",") > -1) {
+            s = s.replace(",", ".");
+          }
+          const n = parseFloat(s);
+          return isNaN(n) ? 0 : n;
+        }
+
+        // Formata um número para exibir no campo de texto (edição), com vírgula decimal.
+        function formatValorInput(n) {
+          if (n === null || n === undefined || n === "" || isNaN(n)) return "";
+          if (n === 0) return "";
+          return n.toFixed(2).replace(".", ",");
         }
 
         function formatDateBR(isoDate) {
@@ -694,9 +903,19 @@ Agenda5_table-edite
         function addValueRow(desc = "", valor = "") {
           const row = document.createElement("div");
           row.className = "value-item";
+          const valorDisplay =
+            valor === "" || valor === null || valor === undefined
+              ? ""
+              : formatValorInput(Math.abs(Number(valor)));
+          const inicialNegativo = Number(valor) < 0;
+          row.dataset.sign = inicialNegativo ? "-" : "+";
           row.innerHTML = `
       <input type="text" class="val-desc" placeholder="Item (opcional)" value="${escapeAttr(desc)}">
-      <input type="number" class="val-num" placeholder="0,00" step="0.01" value="${valor}">
+      <div class="sign-group" role="group" aria-label="Somar ou abater este valor">
+        <button type="button" class="sign-btn sign-pos${inicialNegativo ? "" : " active"}" data-sign="+" aria-label="Somar ao total">+</button>
+        <button type="button" class="sign-btn sign-neg${inicialNegativo ? " active" : ""}" data-sign="-" aria-label="Abater do total">&minus;</button>
+      </div>
+      <input type="text" inputmode="decimal" class="val-num" placeholder="0,00" value="${escapeAttr(valorDisplay)}">
       <button type="button" class="icon-btn" title="Remover valor" aria-label="Remover valor">&times;</button>
     `;
           row.querySelector(".icon-btn").addEventListener("click", () => {
@@ -705,9 +924,48 @@ Agenda5_table-edite
               updateFormTotal();
             }
           });
+          const numInput = row.querySelector(".val-num");
+          const signPosBtn = row.querySelector(".sign-pos");
+          const signNegBtn = row.querySelector(".sign-neg");
+
+          // O sinal (+ / -) fica guardado separadamente do texto digitado
+          // (row.dataset.sign), e não como um "-" dentro do campo de texto.
+          // Isso evita depender do teclado do celular (que normalmente não
+          // tem tecla de menos) e garante que o sinal seja preservado
+          // corretamente ao editar uma tarefa já salva.
+          function refreshSignUI() {
+            const negativo = row.dataset.sign === "-";
+            numInput.classList.toggle("negativo", negativo);
+            signPosBtn.classList.toggle("active", !negativo);
+            signNegBtn.classList.toggle("active", negativo);
+          }
+
+          function definirSinal(sinal) {
+            row.dataset.sign = sinal;
+            refreshSignUI();
+            updateFormTotal();
+          }
+
+          signPosBtn.addEventListener("click", () => definirSinal("+"));
+          signNegBtn.addEventListener("click", () => definirSinal("-"));
+
+          // Se alguém digitar o sinal de menos diretamente (ex.: no
+          // computador), reconhece a intenção, mas mantém no campo apenas o
+          // valor absoluto — o sinal visual passa a ser controlado pelos
+          // botões, mantendo os dois jeitos de uso consistentes entre si.
+          numInput.addEventListener("input", () => {
+            if (numInput.value.trim().startsWith("-")) {
+              numInput.value = numInput.value.replace("-", "");
+              row.dataset.sign = "-";
+            }
+            refreshSignUI();
+            updateFormTotal();
+          });
           row
-            .querySelectorAll("input")
-            .forEach((inp) => inp.addEventListener("input", updateFormTotal));
+            .querySelector(".val-desc")
+            .addEventListener("input", updateFormTotal);
+
+          refreshSignUI();
           valuesList.appendChild(row);
         }
 
@@ -724,18 +982,23 @@ Agenda5_table-edite
 
         function getFormValues() {
           return Array.from(valuesList.querySelectorAll(".value-item")).map(
-            (row) => ({
-              desc: row.querySelector(".val-desc").value.trim(),
-              valor: parseFloat(row.querySelector(".val-num").value) || 0,
-            }),
+            (row) => {
+              const magnitude = Math.abs(
+                parseValorBR(row.querySelector(".val-num").value),
+              );
+              const sinal = row.dataset.sign === "-" ? -1 : 1;
+              return {
+                desc: row.querySelector(".val-desc").value.trim(),
+                valor: sinal * magnitude,
+              };
+            },
           );
         }
 
         function updateFormTotal() {
-          const total = sumValues(
-            getFormValues().map((v) => ({ valor: v.valor })),
-          );
+          const total = sumValues(getFormValues());
           formTotalEl.textContent = formatCurrency(total);
+          formTotalEl.classList.toggle("negativo", total < 0);
         }
 
         document
@@ -749,12 +1012,21 @@ Agenda5_table-edite
         const listCountEl = document.getElementById("listCount");
 
         function render() {
+          try {
+            renderInner();
+          } catch (errRender) {
+            console.error("Falha ao renderizar a lista de tarefas:", errRender);
+          }
+        }
+
+        function renderInner() {
           // total geral
           const totalGeral = tasks.reduce(
-            (acc, t) => acc + sumValues(t.values),
+            (acc, t) => acc + sumValues(t.values || []),
             0,
           );
           totalGeralEl.textContent = formatCurrency(totalGeral);
+          totalGeralEl.classList.toggle("negativo", totalGeral < 0);
           qtdTarefasEl.textContent =
             tasks.length === 1
               ? "1 tarefa registrada"
@@ -771,18 +1043,24 @@ Agenda5_table-edite
 
           // Mantém a ordem do array: tarefas novas entram no início (ver submit handler)
           tasks.forEach((task) => {
-            const st = statusInfo(task.date);
-            const total = sumValues(task.values);
+            try {
+              const st = statusInfo(task.date);
+              const total = sumValues(task.values);
 
-            const el = document.createElement("div");
-            el.className = "task" + (st.urgent ? " urgente" : "");
+              const el = document.createElement("div");
+              el.className = "task" + (st.urgent ? " urgente" : "");
 
-            const valuesHtml =
-              task.values.length > 1
-                ? `<ul class="task-values">${task.values.map((v) => `<li><span>${escapeHtml(v.desc || "Valor")}</span><span>${formatCurrency(v.valor)}</span></li>`).join("")}</ul>`
-                : "";
+              const valuesHtml =
+                task.values.length > 1
+                  ? `<ul class="task-values">${task.values
+                      .map(
+                        (v) =>
+                          `<li><span>${escapeHtml(v.desc || "Valor")}</span><span class="${v.valor < 0 ? "valor-negativo" : ""}">${formatCurrency(v.valor)}</span></li>`,
+                      )
+                      .join("")}</ul>`
+                  : "";
 
-            el.innerHTML = `
+              el.innerHTML = `
         <div class="task-tab ${st.cls}${st.urgent ? " urgente" : ""}"></div>
         <div class="task-body">
           <div class="task-top">
@@ -791,14 +1069,19 @@ Agenda5_table-edite
           </div>
           <div class="task-desc">${escapeHtml(task.description)}</div>
           ${valuesHtml}
-          <div class="task-total">Total: ${formatCurrency(total)}</div>
+          <div class="task-total${total < 0 ? " negativo" : ""}">Total: ${formatCurrency(total)}</div>
           <div class="task-actions">
             <button class="btn-edit" data-action="edit" data-id="${task.id}">Editar</button>
             <button class="btn-delete" data-action="delete" data-id="${task.id}">Excluir</button>
           </div>
         </div>
       `;
-            taskListEl.appendChild(el);
+              taskListEl.appendChild(el);
+            } catch (errTarefa) {
+              // Nunca deixa um registro com formato inesperado travar a
+              // renderização das demais tarefas.
+              console.error("Falha ao renderizar uma tarefa:", errTarefa, task);
+            }
           });
         }
 
@@ -831,6 +1114,42 @@ Agenda5_table-edite
         const formTitle = document.getElementById("formTitle");
         const submitBtn = document.getElementById("submitBtn");
         const cancelEditBtn = document.getElementById("cancelEditBtn");
+        const errData = document.getElementById("errData");
+        const errDesc = document.getElementById("errDesc");
+
+        function clearFieldError(input, errEl) {
+          input.classList.remove("input-invalid");
+          errEl.classList.remove("show");
+          errEl.textContent = "";
+        }
+
+        function setFieldError(input, errEl, message) {
+          input.classList.add("input-invalid");
+          errEl.textContent = message;
+          errEl.classList.add("show");
+        }
+
+        inpData.addEventListener("input", () => clearFieldError(inpData, errData));
+        inpDesc.addEventListener("input", () => clearFieldError(inpDesc, errDesc));
+
+        // Validação explícita em JS (não depende do "required" nativo do
+        // navegador, que pode ser silenciosamente ignorado em alguns
+        // ambientes embutidos/iframes).
+        function validateForm(date, description) {
+          let valid = true;
+          clearFieldError(inpData, errData);
+          clearFieldError(inpDesc, errDesc);
+
+          if (!date) {
+            setFieldError(inpData, errData, "Informe uma data.");
+            valid = false;
+          }
+          if (!description) {
+            setFieldError(inpDesc, errDesc, "Informe uma descrição.");
+            valid = false;
+          }
+          return valid;
+        }
 
         function resetForm() {
           editingId = null;
@@ -842,6 +1161,8 @@ Agenda5_table-edite
           submitBtn.textContent = "Adicionar tarefa";
           cancelEditBtn.style.display = "none";
           inpData.value = todayISO();
+          clearFieldError(inpData, errData);
+          clearFieldError(inpDesc, errDesc);
         }
 
         function startEdit(id) {
@@ -872,7 +1193,7 @@ Agenda5_table-edite
             valor: v.valor,
           }));
 
-          if (!date || !description) {
+          if (!validateForm(date, description)) {
             return;
           }
 
@@ -904,6 +1225,10 @@ Agenda5_table-edite
         updateFormTotal();
         inpData.value = todayISO();
         render();
+        if (!storageDisponivel) {
+          const aviso = document.getElementById("avisoStorage");
+          if (aviso) aviso.style.display = "block";
+        }
 
         // refresh day counters periodically (in case the page stays open across midnight)
         setInterval(render, 60 * 1000);
