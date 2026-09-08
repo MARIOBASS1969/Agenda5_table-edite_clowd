@@ -137,6 +137,7 @@
         flex-direction: column;
         gap: 6px;
         margin-bottom: 14px;
+        background-color: #e0f2f0;
       }
       .field label {
         font-size: 12px;
@@ -294,6 +295,10 @@
         border-color: var(--coral) !important;
         outline: 2px solid var(--coral) !important;
         outline-offset: 1px;
+      }
+
+      #inpDesc{
+        background-color:#fcfccb;
       }
 
       .form-total {
@@ -628,7 +633,7 @@
               <input
                 type="text"
                 id="inpDesc"
-                placeholder="Ex.: Pagamento fornecedor"
+                placeholder="Ex.: Digite um Nome próprio ou adescrição da tarefa"
               />
               <div class="field-error" id="errDesc"></div>
             </div>
@@ -969,7 +974,7 @@
           const inicialNegativo = Number(valor) < 0;
           row.dataset.sign = inicialNegativo ? "-" : "+";
           row.innerHTML = `
-      <input type="text" class="val-desc" placeholder="Item (opcional)" value="${escapeAttr(desc)}">
+      <input type="text" class="val-desc" placeholder="Digite algo referente ao valor. exem:Uber" value="${escapeAttr(desc)}">
       <div class="sign-group" role="group" aria-label="Somar ou abater este valor">
         <button type="button" class="sign-btn sign-pos${inicialNegativo ? "" : " active"}" data-sign="+" aria-label="Somar ao total">+</button>
         <button type="button" class="sign-btn sign-neg${inicialNegativo ? " active" : ""}" data-sign="-" aria-label="Abater do total">&minus;</button>
