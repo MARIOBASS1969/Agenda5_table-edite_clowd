@@ -137,6 +137,7 @@
         flex-direction: column;
         gap: 6px;
         margin-bottom: 14px;
+        background-color: #e0f2f0;
       }
       .field label {
         font-size: 12px;
@@ -296,6 +297,10 @@
         outline-offset: 1px;
       }
 
+      #inpDesc{
+        background-color:#fcfccb;
+      }
+
       .form-total {
         font-family: "IBM Plex Mono", monospace;
         font-size: 14px;
@@ -427,48 +432,6 @@
       }
       .task-tab.passou {
         background: var(--coral);
-      }
-
-      /* ---------- Arrastar para reordenar ---------- */
-      .task.dragging {
-        display: none;
-      }
-      .task-placeholder {
-        border: 2px dashed var(--teal);
-        border-radius: var(--radius);
-        background: var(--teal-bg);
-        margin-bottom: 12px;
-      }
-      .task-ghost {
-        position: fixed;
-        z-index: 9999;
-        pointer-events: none;
-        opacity: 0.96;
-        box-shadow: 0 10px 26px rgba(31, 42, 55, 0.22);
-      }
-      .task-top-left {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-      .drag-handle {
-        cursor: grab;
-        color: var(--ink-faint);
-        font-size: 15px;
-        letter-spacing: -2px;
-        line-height: 1;
-        padding: 6px 4px 6px 8px;
-        margin-left: -8px;
-        border-radius: 6px;
-        touch-action: none;
-        user-select: none;
-      }
-      .drag-handle:hover {
-        background: #f2f4f7;
-        color: var(--ink-soft);
-      }
-      .drag-handle:active {
-        cursor: grabbing;
       }
 
       .task-body {
@@ -670,7 +633,7 @@
               <input
                 type="text"
                 id="inpDesc"
-                placeholder="Ex.: Pagamento fornecedor"
+                placeholder="Ex.: Digite um Nome próprio ou adescrição da tarefa"
               />
               <div class="field-error" id="errDesc"></div>
             </div>
@@ -1011,7 +974,7 @@
           const inicialNegativo = Number(valor) < 0;
           row.dataset.sign = inicialNegativo ? "-" : "+";
           row.innerHTML = `
-      <input type="text" class="val-desc" placeholder="Item (opcional)" value="${escapeAttr(desc)}">
+      <input type="text" class="val-desc" placeholder="Digite algo referente ao valor. exem:Uber" value="${escapeAttr(desc)}">
       <div class="sign-group" role="group" aria-label="Somar ou abater este valor">
         <button type="button" class="sign-btn sign-pos${inicialNegativo ? "" : " active"}" data-sign="+" aria-label="Somar ao total">+</button>
         <button type="button" class="sign-btn sign-neg${inicialNegativo ? " active" : ""}" data-sign="-" aria-label="Abater do total">&minus;</button>
@@ -1153,7 +1116,6 @@
         }
 
         function renderInner() {
-          if (dragState) return;
           const tarefasFiltradas = getTarefasFiltradas();
           const filtrando = normalizarBusca(inpBusca.value) !== "";
 
@@ -1204,11 +1166,6 @@
 
               const el = document.createElement("div");
               el.className = "task" + (st.urgent ? " urgente" : "");
-              el.dataset.id = task.id;
-
-              const handleHtml = filtrando
-                ? ""
-                : `<span class="drag-handle" title="Arraste para reordenar" aria-hidden="true">&#8942;&#8942;</span>`;
 
               const valuesHtml =
                 task.values.length > 1
@@ -1224,10 +1181,7 @@
         <div class="task-tab ${st.cls}${st.urgent ? " urgente" : ""}"></div>
         <div class="task-body">
           <div class="task-top">
-            <div class="task-top-left">
-              ${handleHtml}
-              <span class="task-date">${formatDateBR(task.date)}</span>
-            </div>
+            <span class="task-date">${formatDateBR(task.date)}</span>
             <span class="stamp ${st.cls}${st.urgent ? " urgente" : ""}">${st.text}</span>
           </div>
           <div class="task-desc">${escapeHtml(task.description)}</div>
@@ -1247,119 +1201,6 @@
             }
           });
         }
-
-        // ---------- Arrastar para reordenar ----------
-        // Usa a API de Pointer Events (funciona com mouse e com toque no
-        // celular — o drag-and-drop nativo do HTML5 não funciona bem em
-        // telas sensíveis ao toque). O arrasto começa pelo ícone de "grip"
-        // ao lado da data. Fica indisponível enquanto há uma busca ativa,
-        // já que a ordem visual nesse caso não é a ordem real da lista.
-        let dragState = null;
-
-        function getSiblingAfter(container, y) {
-          const els = Array.from(
-            container.querySelectorAll(
-              ".task:not(.task-placeholder):not(.dragging)",
-            ),
-          );
-          return els.reduce(
-            (closest, child) => {
-              const box = child.getBoundingClientRect();
-              const offset = y - (box.top + box.height / 2);
-              if (offset < 0 && offset > closest.offset) {
-                return { offset, element: child };
-              }
-              return closest;
-            },
-            { offset: Number.NEGATIVE_INFINITY, element: null },
-          ).element;
-        }
-
-        function reorderTasksFromDOM() {
-          const ids = Array.from(
-            taskListEl.querySelectorAll(".task:not(.task-placeholder)"),
-          )
-            .map((el) => el.dataset.id)
-            .filter(Boolean);
-          const map = new Map(tasks.map((t) => [t.id, t]));
-          const reordered = ids.map((id) => map.get(id)).filter(Boolean);
-          if (reordered.length === tasks.length) {
-            tasks = reordered;
-          }
-        }
-
-        function startDrag(card, e) {
-          const rect = card.getBoundingClientRect();
-          const ghost = card.cloneNode(true);
-          ghost.classList.add("task-ghost");
-          ghost.style.width = rect.width + "px";
-          ghost.style.top = rect.top + "px";
-          ghost.style.left = rect.left + "px";
-          ghost
-            .querySelectorAll("button")
-            .forEach((b) => (b.disabled = true));
-          document.body.appendChild(ghost);
-
-          const placeholder = document.createElement("div");
-          placeholder.className = "task task-placeholder";
-          placeholder.style.height = rect.height + "px";
-          card.parentNode.insertBefore(placeholder, card);
-          card.classList.add("dragging");
-
-          dragState = {
-            card,
-            ghost,
-            placeholder,
-            offsetY: e.clientY - rect.top,
-          };
-
-          document.addEventListener("pointermove", onDragMove, {
-            passive: false,
-          });
-          document.addEventListener("pointerup", onDragEnd);
-          document.addEventListener("pointercancel", onDragEnd);
-        }
-
-        function onDragMove(e) {
-          if (!dragState) return;
-          e.preventDefault();
-          dragState.ghost.style.top = e.clientY - dragState.offsetY + "px";
-
-          const afterEl = getSiblingAfter(taskListEl, e.clientY);
-          if (afterEl == null) {
-            if (taskListEl.lastElementChild !== dragState.placeholder) {
-              taskListEl.appendChild(dragState.placeholder);
-            }
-          } else if (afterEl !== dragState.placeholder.nextElementSibling) {
-            taskListEl.insertBefore(dragState.placeholder, afterEl);
-          }
-        }
-
-        function onDragEnd() {
-          if (!dragState) return;
-          document.removeEventListener("pointermove", onDragMove);
-          document.removeEventListener("pointerup", onDragEnd);
-          document.removeEventListener("pointercancel", onDragEnd);
-
-          const { card, ghost, placeholder } = dragState;
-          placeholder.replaceWith(card);
-          card.classList.remove("dragging");
-          ghost.remove();
-          dragState = null;
-
-          reorderTasksFromDOM();
-          saveTasks();
-          render();
-        }
-
-        taskListEl.addEventListener("pointerdown", (e) => {
-          const handle = e.target.closest(".drag-handle");
-          if (!handle) return;
-          const card = handle.closest(".task");
-          if (!card) return;
-          e.preventDefault();
-          startDrag(card, e);
-        });
 
         taskListEl.addEventListener("click", (e) => {
           const btn = e.target.closest("button[data-action]");
