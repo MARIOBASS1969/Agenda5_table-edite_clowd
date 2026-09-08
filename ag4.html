@@ -21,7 +21,7 @@
         --teal-bg: #e3f3f1;
         --amber: #b4790a;
         --amber-bg: #fbf0dc;
-        --coral: #f30f0fdb;
+        --coral: #c43e3e;
         --coral-bg: #fbe7e7;
         --radius: 10px;
       }
@@ -493,7 +493,7 @@
       @keyframes piscarBorda {
         0%,
         100% {
-          box-shadow: 0 0 0 0 rgba(246, 57, 57, 0.55);
+          box-shadow: 0 0 0 0 rgba(196, 62, 62, 0.55);
         }
         50% {
           box-shadow: 0 0 0 4px rgba(196, 62, 62, 0);
@@ -560,8 +560,7 @@
       .btn-edit {
         background: none;
         border: 1px solid var(--line);
-        background: #78ece3;
-        color: var(--teal);
+        color: var(--ink-soft);
       }
       .btn-edit:hover {
         border-color: var(--teal);
@@ -570,8 +569,7 @@
       .btn-delete {
         background: none;
         border: 1px solid var(--line);
-        background: rgb(252, 199, 199);
-        color: var(--coral);
+        color: var(--ink-soft);
       }
       .btn-delete:hover {
         border-color: var(--coral);
@@ -607,7 +605,7 @@
         <h1>Agenda de Tarefas</h1>
         <div class="balance-row">
           <div>
-            <div class="balance-label">Total geral</div>
+            <div class="balance-label" id="totalGeralLabel">Total geral</div>
             <div class="balance-value" id="totalGeral">R$ 0,00</div>
           </div>
           <div class="balance-sub" id="qtdTarefas">0 tarefas registradas</div>
@@ -1067,6 +1065,7 @@
         // ---------- Rendering ----------
         const taskListEl = document.getElementById("taskList");
         const totalGeralEl = document.getElementById("totalGeral");
+        const totalGeralLabelEl = document.getElementById("totalGeralLabel");
         const qtdTarefasEl = document.getElementById("qtdTarefas");
         const listCountEl = document.getElementById("listCount");
         const inpBusca = document.getElementById("inpBusca");
@@ -1110,21 +1109,29 @@
         }
 
         function renderInner() {
-          // total geral considera SEMPRE todas as tarefas, independente do
-          // filtro de busca — é o saldo real do livro razão.
-          const totalGeral = tasks.reduce(
+          const tarefasFiltradas = getTarefasFiltradas();
+          const filtrando = normalizarBusca(inpBusca.value) !== "";
+
+          // Quando há um filtro de busca ativo, o total geral passa a
+          // refletir apenas as tarefas filtradas — não o saldo do livro
+          // inteiro.
+          const totalGeral = tarefasFiltradas.reduce(
             (acc, t) => acc + sumValues(t.values || []),
             0,
           );
           totalGeralEl.textContent = formatCurrency(totalGeral);
           totalGeralEl.classList.toggle("negativo", totalGeral < 0);
-          qtdTarefasEl.textContent =
-            tasks.length === 1
+          totalGeralLabelEl.textContent = filtrando
+            ? "Total filtrado"
+            : "Total geral";
+
+          qtdTarefasEl.textContent = filtrando
+            ? tarefasFiltradas.length === 1
+              ? "1 tarefa filtrada"
+              : `${tarefasFiltradas.length} tarefas filtradas`
+            : tasks.length === 1
               ? "1 tarefa registrada"
               : `${tasks.length} tarefas registradas`;
-
-          const tarefasFiltradas = getTarefasFiltradas();
-          const filtrando = normalizarBusca(inpBusca.value) !== "";
 
           listCountEl.textContent = filtrando
             ? `${tarefasFiltradas.length} de ${tasks.length} itens`
