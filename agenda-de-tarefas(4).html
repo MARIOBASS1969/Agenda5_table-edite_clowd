@@ -435,7 +435,7 @@
       }
       .task-top {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 10px;
         flex-wrap: wrap;
@@ -461,8 +461,8 @@
         text-transform: uppercase;
         padding: 5px 10px;
         border-radius: 20px;
+        transform: rotate(-2deg);
         white-space: nowrap;
-        line-height: 1;
       }
       .stamp.hoje {
         background: var(--amber-bg);
@@ -601,14 +601,14 @@
     </style>
   </head>
   <body>
-    <div class="wrap">
+  
+            <div class="balance-label" id="totalGeralLabel">Total geral</div>
+            <div class="bal  <div class="wrap">
       <header class="ledger">
         <div class="ledger-eyebrow">Registro de tarefas</div>
         <h1>Agenda de Tarefas</h1>
         <div class="balance-row">
-          <div>
-            <div class="balance-label" id="totalGeralLabel">Total geral</div>
-            <div class="balance-value" id="totalGeral">R$ 0,00</div>
+          <div>ance-value" id="totalGeral">R$ 0,00</div>
           </div>
           <div class="balance-sub" id="qtdTarefas">0 tarefas registradas</div>
         </div>
@@ -1341,10 +1341,6 @@
           const aviso = document.getElementById("avisoStorage");
           if (aviso) aviso.style.display = "block";
         }
-
-        // Ao carregar a página, leva o cursor direto para o campo de
-        // descrição, já que a data já vem preenchida com hoje.
-        inpDesc.focus();
 
         // refresh day counters periodically (in case the page stays open across midnight)
         setInterval(render, 60 * 1000);
