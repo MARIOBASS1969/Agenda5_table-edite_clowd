@@ -163,10 +163,6 @@
         border-color: var(--teal);
       }
 
-      #inpDesc{
-        background-color:#fcfccb;
-      }
-
       .row2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -403,10 +399,9 @@
       .empty-state {
         text-align: center;
         padding: 50px 20px;
-        color: rgb(252, 108, 56);
+        color: var(--ink-faint);
         font-family: "IBM Plex Mono", monospace;
-        font: bold;
-        font-size: 16px;
+        font-size: 13px;
         border: 1px dashed var(--line);
         border-radius: var(--radius);
         background: var(--surface);
@@ -1197,7 +1192,7 @@
           }
 
           if (tarefasFiltradas.length === 0) {
-            taskListEl.innerHTML = `<div class="empty-state">Nenhuma tarefa encontrada para "${escapeHtml(inpBusca.value.trim())}".</div>`;
+            taskListEl.innerHTML = `<div class="empty-state">Não foram encontrado nenhuma palavra com este nome.</div>`;
             return;
           }
 
