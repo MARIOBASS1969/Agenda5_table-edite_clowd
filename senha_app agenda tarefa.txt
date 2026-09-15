@@ -1,0 +1,7 @@
+app agenda tarefa
+recuperar senha:
+pergunta: aniver
+data 4 dígitos ou cao
+password: 1205
+
+agenda-de-tarefas_login_olhinho(8) que é o index atual
