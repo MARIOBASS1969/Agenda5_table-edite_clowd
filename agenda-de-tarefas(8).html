@@ -163,6 +163,14 @@
         border-color: var(--teal);
       }
 
+      #loginSenha{
+        height: 35px;
+        border-radius: 8px;
+        font-size: 20px;
+        padding: 10px;
+        margin-right: 30px;
+      }
+
       .row2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -294,30 +302,6 @@
         border-color: var(--coral) !important;
         outline: 2px solid var(--coral) !important;
         outline-offset: 1px;
-      }
-
-      .checkbox-field {
-        flex-direction: row;
-        align-items: center;
-      }
-      .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-family: "Inter", sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--ink);
-        text-transform: none;
-        letter-spacing: normal;
-        cursor: pointer;
-        user-select: none;
-      }
-      .checkbox-label input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: var(--teal);
-        cursor: pointer;
       }
 
       .form-total {
@@ -656,111 +640,6 @@
         border: 1px solid var(--line);
         color: var(--ink-soft);
       }
-      .btn-parcelas {
-        background: var(--amber-bg);
-        border: 2px solid var(--line);
-        color: var(--amber);
-      }
-      .btn-parcelas:hover {
-        border-color: var(--amber);
-        color: var(--amber);
-      }
-
-      /* ---------- Modal de parcelas ---------- */
-      .modal-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 9000;
-        background: rgba(31, 42, 55, 0.55);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-      }
-      .modal-overlay[hidden] {
-        display: none;
-      }
-      .modal-card {
-        width: 100%;
-        max-width: 420px;
-        max-height: 80vh;
-        background: var(--surface);
-        border-radius: var(--radius);
-        padding: 22px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
-        display: flex;
-        flex-direction: column;
-      }
-      .modal-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 4px;
-      }
-      .modal-header h2 {
-        font-family: "Fraunces", serif;
-        font-size: 19px;
-        font-weight: 600;
-        margin: 0;
-        color: var(--ink);
-        word-break: break-word;
-      }
-      .modal-close {
-        background: none;
-        border: none;
-        color: var(--ink-faint);
-        font-size: 22px;
-        line-height: 1;
-        cursor: pointer;
-        padding: 2px 6px;
-        border-radius: 6px;
-        flex-shrink: 0;
-      }
-      .modal-close:hover {
-        background: #f2f4f7;
-        color: var(--coral);
-      }
-      .modal-sub {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 12px;
-        color: var(--ink-faint);
-        margin-bottom: 16px;
-      }
-      .parcelas-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        overflow-y: auto;
-      }
-      .parcelas-list li {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 0;
-        border-bottom: 1px dashed var(--line);
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 14px;
-      }
-      .parcelas-list li:last-child {
-        border-bottom: none;
-      }
-      .parcela-num {
-        color: var(--ink-faint);
-        flex-shrink: 0;
-        min-width: 34px;
-      }
-      .parcela-data {
-        color: var(--ink-soft);
-        flex: 1;
-      }
-      .parcela-valor {
-        font-weight: 600;
-        color: var(--ink);
-      }
-      .parcela-valor.negativo {
-        color: var(--coral);
-      }
 
       footer {
         text-align: center;
@@ -871,6 +750,7 @@
       }
       @media (max-width: 420px) {
         .auth-card {
+          background-color: #cce9f1;
           padding: 28px 20px 22px;
           border-radius: 12px;
         }
@@ -1196,28 +1076,6 @@
             </div>
           </div>
 
-          <div class="field checkbox-field">
-            <label class="checkbox-label">
-              <input type="checkbox" id="inpParcelado" />
-              Compra parcelada
-            </label>
-          </div>
-
-          <div class="field" id="fieldParcelas" style="display: none">
-            <label for="inpParcelas">Nº de Parcelas</label>
-            <input
-              type="number"
-              id="inpParcelas"
-              min="1"
-              max="12"
-              step="1"
-              inputmode="numeric"
-              placeholder="Ex.: 3"
-            />
-            <div class="field-error" id="errParcelas"></div>
-            <div class="field-hint" id="parcelasPreview"></div>
-          </div>
-
           <div class="form-total">
             Total desta tarefa: <strong id="formTotal">R$ 0,00</strong>
           </div>
@@ -1262,24 +1120,6 @@
       </div>
 
       <div id="taskList"></div>
-
-      <div id="parcelasModal" class="modal-overlay" hidden>
-        <div class="modal-card">
-          <div class="modal-header">
-            <h2 id="parcelasModalTitle">Parcelas</h2>
-            <button
-              type="button"
-              class="modal-close"
-              id="btnFecharParcelas"
-              aria-label="Fechar"
-            >
-              &times;
-            </button>
-          </div>
-          <div class="modal-sub" id="parcelasModalSub"></div>
-          <ul class="parcelas-list" id="parcelasList"></ul>
-        </div>
-      </div>
 
       <div
         id="avisoStorage"
@@ -1384,17 +1224,11 @@
             // formato bem antigo: um único valor numérico por tarefa
             values = [{ desc: "", valor: Number(t.valor) || 0 }];
           }
-          const numParcelasValida =
-            Number.isInteger(t.numParcelas) &&
-            t.numParcelas >= 1 &&
-            t.numParcelas <= 12;
           return {
             id: t.id ? String(t.id) : uid(),
             date: t.date && /^\d{4}-\d{2}-\d{2}$/.test(t.date) ? t.date : todayISO(),
             description: t.description ? String(t.description) : "",
             values,
-            parcelado: !!t.parcelado && numParcelasValida,
-            numParcelas: numParcelasValida ? t.numParcelas : null,
           };
         }
 
@@ -1519,37 +1353,6 @@
           const m = String(d.getMonth() + 1).padStart(2, "0");
           const day = String(d.getDate()).padStart(2, "0");
           return `${y}-${m}-${day}`;
-        }
-
-        // Soma "dias" (pode ser negativo) a uma data ISO (YYYY-MM-DD) e
-        // devolve outra data ISO. Usado para calcular o vencimento de cada
-        // parcela (30 dias após a anterior).
-        function addDays(isoDate, dias) {
-          const [y, m, d] = isoDate.split("-").map(Number);
-          const dt = new Date(y, m - 1, d);
-          dt.setDate(dt.getDate() + dias);
-          const yy = dt.getFullYear();
-          const mm = String(dt.getMonth() + 1).padStart(2, "0");
-          const dd = String(dt.getDate()).padStart(2, "0");
-          return `${yy}-${mm}-${dd}`;
-        }
-
-        // Divide um valor total em "n" parcelas que somam exatamente o
-        // total (distribui os centavos de arredondamento nas primeiras
-        // parcelas em vez de deixar sobra/falta na soma final).
-        function splitInstallments(total, n) {
-          const totalCents = Math.round(total * 100);
-          const base = Math.trunc(totalCents / n);
-          let resto = totalCents - base * n;
-          const sinalResto = resto < 0 ? -1 : 1;
-          resto = Math.abs(resto);
-          const valores = [];
-          for (let i = 0; i < n; i++) {
-            let cents = base;
-            if (i < resto) cents += sinalResto;
-            valores.push(cents / 100);
-          }
-          return valores;
         }
 
         function dayDiff(isoDate) {
@@ -1745,47 +1548,11 @@
           const total = sumValues(getFormValues());
           formTotalEl.textContent = formatCurrency(total);
           formTotalEl.classList.toggle("negativo", total < 0);
-          updateParcelasPreview();
         }
 
         document
           .getElementById("addValueBtn")
           .addEventListener("click", () => addValueRow());
-
-        // ---------- Compra parcelada ----------
-        const inpParcelado = document.getElementById("inpParcelado");
-        const fieldParcelas = document.getElementById("fieldParcelas");
-        const inpParcelas = document.getElementById("inpParcelas");
-        const errParcelas = document.getElementById("errParcelas");
-        const parcelasPreviewEl = document.getElementById("parcelasPreview");
-
-        function updateParcelasPreview() {
-          if (!inpParcelado.checked) {
-            parcelasPreviewEl.textContent = "";
-            return;
-          }
-          const n = parseInt(inpParcelas.value, 10);
-          if (!Number.isInteger(n) || n < 1 || n > 12) {
-            parcelasPreviewEl.textContent = "Informe um número de 1 a 12.";
-            return;
-          }
-          const total = sumValues(getFormValues());
-          const valores = splitInstallments(total, n);
-          const dataBase = inpData.value || todayISO();
-          parcelasPreviewEl.textContent = `${n}x — 1ª parcela de ${formatCurrency(valores[0])} em ${formatDateBR(dataBase)}, a cada 30 dias.`;
-        }
-
-        inpParcelado.addEventListener("change", () => {
-          fieldParcelas.style.display = inpParcelado.checked ? "" : "none";
-          clearFieldError(inpParcelas, errParcelas);
-          if (!inpParcelado.checked) inpParcelas.value = "";
-          updateParcelasPreview();
-        });
-
-        inpParcelas.addEventListener("input", () => {
-          clearFieldError(inpParcelas, errParcelas);
-          updateParcelasPreview();
-        });
 
         // ---------- Rendering ----------
         const taskListEl = document.getElementById("taskList");
@@ -1901,11 +1668,6 @@
                       .join("")}</ul>`
                   : "";
 
-              const parcelasBtnHtml =
-                task.parcelado && task.numParcelas
-                  ? `<button class="btn-parcelas" data-action="parcelas" data-id="${task.id}">Mostrar parcelas</button>`
-                  : "";
-
               el.innerHTML = `
         <div class="task-tab ${st.cls}${st.urgent ? " urgente" : ""}"></div>
         <div class="task-body">
@@ -1922,7 +1684,6 @@
           <div class="task-actions">
             <button class="btn-edit" data-action="edit" data-id="${task.id}">Editar</button>
             <button class="btn-delete" data-action="delete" data-id="${task.id}">Excluir</button>
-            ${parcelasBtnHtml}
           </div>
         </div>
       `;
@@ -2056,59 +1817,6 @@
             deleteTask(id);
           } else if (btn.dataset.action === "edit") {
             startEdit(id);
-          } else if (btn.dataset.action === "parcelas") {
-            const task = tasks.find((t) => t.id === id);
-            if (task) abrirParcelasModal(task);
-          }
-        });
-
-        // ---------- Modal de parcelas ----------
-        const parcelasModal = document.getElementById("parcelasModal");
-        const parcelasModalTitle = document.getElementById(
-          "parcelasModalTitle",
-        );
-        const parcelasModalSub = document.getElementById("parcelasModalSub");
-        const parcelasListEl = document.getElementById("parcelasList");
-
-        function abrirParcelasModal(task) {
-          if (!task.parcelado || !task.numParcelas) return;
-          const total = sumValues(task.values);
-          const n = task.numParcelas;
-          const valoresParcelas = splitInstallments(total, n);
-
-          parcelasModalTitle.textContent =
-            task.description || "Parcelas";
-          parcelasModalSub.textContent = `Compra em ${formatDateBR(task.date)} · ${n}x de aproximadamente ${formatCurrency(total / n)}`;
-
-          parcelasListEl.innerHTML = valoresParcelas
-            .map((valor, i) => {
-              const dataParcela = addDays(task.date, 30 * i);
-              return `<li>
-                <span class="parcela-num">${i + 1}/${n}</span>
-                <span class="parcela-data">${formatDateBR(dataParcela)}</span>
-                <span class="parcela-valor${valor < 0 ? " negativo" : ""}">${formatCurrency(valor)}</span>
-              </li>`;
-            })
-            .join("");
-
-          parcelasModal.removeAttribute("hidden");
-        }
-
-        function fecharParcelasModal() {
-          parcelasModal.setAttribute("hidden", "");
-        }
-
-        document
-          .getElementById("btnFecharParcelas")
-          .addEventListener("click", fecharParcelasModal);
-
-        parcelasModal.addEventListener("click", (e) => {
-          if (e.target === parcelasModal) fecharParcelasModal();
-        });
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape" && !parcelasModal.hasAttribute("hidden")) {
-            fecharParcelasModal();
           }
         });
 
@@ -2146,7 +1854,6 @@
         }
 
         inpData.addEventListener("input", () => clearFieldError(inpData, errData));
-        inpData.addEventListener("change", updateParcelasPreview);
         inpDesc.addEventListener("input", () => clearFieldError(inpDesc, errDesc));
 
         // Validação explícita em JS (não depende do "required" nativo do
@@ -2173,9 +1880,6 @@
           form.reset();
           valuesList.innerHTML = "";
           addValueRow();
-          fieldParcelas.style.display = "none";
-          inpParcelas.value = "";
-          clearFieldError(inpParcelas, errParcelas);
           updateFormTotal();
           formTitle.textContent = "Nova tarefa";
           submitBtn.textContent = "Adicionar tarefa";
@@ -2193,10 +1897,6 @@
           inpDesc.value = task.description;
           valuesList.innerHTML = "";
           task.values.forEach((v) => addValueRow(v.desc, v.valor));
-          inpParcelado.checked = !!task.parcelado;
-          fieldParcelas.style.display = task.parcelado ? "" : "none";
-          inpParcelas.value = task.parcelado ? task.numParcelas : "";
-          clearFieldError(inpParcelas, errParcelas);
           updateFormTotal();
           formTitle.textContent = "Editar tarefa";
           submitBtn.textContent = "Salvar tarefa";
@@ -2217,24 +1917,7 @@
             valor: v.valor,
           }));
 
-          let formValido = validateForm(date, description);
-
-          let numParcelas = null;
-          if (inpParcelado.checked) {
-            const n = parseInt(inpParcelas.value, 10);
-            if (!Number.isInteger(n) || n < 1 || n > 12) {
-              setFieldError(
-                inpParcelas,
-                errParcelas,
-                "Informe um número de 1 a 12.",
-              );
-              formValido = false;
-            } else {
-              numParcelas = n;
-            }
-          }
-
-          if (!formValido) {
+          if (!validateForm(date, description)) {
             return;
           }
 
@@ -2244,8 +1927,6 @@
               task.date = date;
               task.description = description;
               task.values = values;
-              task.parcelado = !!numParcelas;
-              task.numParcelas = numParcelas;
             }
           } else {
             // Nova tarefa entra no início da lista
@@ -2254,8 +1935,6 @@
               date,
               description,
               values,
-              parcelado: !!numParcelas,
-              numParcelas: numParcelas,
             });
           }
 
