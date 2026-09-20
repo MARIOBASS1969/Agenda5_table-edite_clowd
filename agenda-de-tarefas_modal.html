@@ -1677,24 +1677,6 @@
           return Array.from({ length: n }, (_, i) => arr[i] || null);
         }
 
-        // Soma quanto já foi pago das parcelas de uma tarefa parcelada.
-        function valorPagoParcelas(task) {
-          if (!task.parcelado || !task.numParcelas) return 0;
-          const total = sumValues(task.values);
-          const valoresParcelas = splitInstallments(total, task.numParcelas);
-          const pagamentos = task.pagamentos || [];
-          return valoresParcelas.reduce(
-            (acc, valor, i) => acc + (pagamentos[i] ? valor : 0),
-            0,
-          );
-        }
-
-        // Saldo da tarefa: valor total menos o que já foi pago nas
-        // parcelas (para tarefas não parceladas, é o próprio total).
-        function saldoTarefa(task) {
-          return sumValues(task.values) - valorPagoParcelas(task);
-        }
-
         function dayDiff(isoDate) {
           // returns positive if future, negative if past, 0 if today (calendar days, ignoring time)
           const [y, m, d] = isoDate.split("-").map(Number);
@@ -1983,9 +1965,9 @@
 
           // Quando há um filtro de busca ativo, o total geral passa a
           // refletir apenas as tarefas filtradas — não o saldo do livro
-          // inteiro. Parcelas já pagas são descontadas do saldo.
+          // inteiro.
           const totalGeral = tarefasFiltradas.reduce(
-            (acc, t) => acc + saldoTarefa(t),
+            (acc, t) => acc + sumValues(t.values || []),
             0,
           );
           totalGeralEl.textContent = formatCurrency(totalGeral);
@@ -2024,18 +2006,7 @@
           tarefasFiltradas.forEach((task) => {
             try {
               const st = statusInfo(task.date);
-              const total = saldoTarefa(task);
-              const parcelasRestantesCount =
-                task.parcelado && task.numParcelas
-                  ? task.numParcelas -
-                    (Array.isArray(task.pagamentos)
-                      ? task.pagamentos.filter(Boolean).length
-                      : 0)
-                  : 0;
-              const totalLabel =
-                task.parcelado && task.numParcelas
-                  ? `Restante (${parcelasRestantesCount} ${parcelasRestantesCount === 1 ? "parcela" : "parcelas"})`
-                  : "Total";
+              const total = sumValues(task.values);
 
               const el = document.createElement("div");
               el.className = "task" + (st.urgent ? " urgente" : "");
@@ -2072,7 +2043,7 @@
           </div>
           <div class="task-desc">${escapeHtml(task.description)}</div>
           ${valuesHtml}
-          <div class="task-total${total < 0 ? " negativo" : ""}">${totalLabel}: ${formatCurrency(total)}</div>
+          <div class="task-total${total < 0 ? " negativo" : ""}">Total: ${formatCurrency(total)}</div>
           <div class="task-actions">
             <button class="btn-edit" data-action="edit" data-id="${task.id}">Editar</button>
             <button class="btn-delete" data-action="delete" data-id="${task.id}">Excluir</button>
@@ -2303,7 +2274,6 @@
           task.pagamentos[idx] = jaPago ? null : todayISO();
           saveTasks();
           renderParcelasModal(task);
-          render();
         });
 
         document

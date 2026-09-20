@@ -2025,17 +2025,8 @@
             try {
               const st = statusInfo(task.date);
               const total = saldoTarefa(task);
-              const parcelasRestantesCount =
-                task.parcelado && task.numParcelas
-                  ? task.numParcelas -
-                    (Array.isArray(task.pagamentos)
-                      ? task.pagamentos.filter(Boolean).length
-                      : 0)
-                  : 0;
               const totalLabel =
-                task.parcelado && task.numParcelas
-                  ? `Restante (${parcelasRestantesCount} ${parcelasRestantesCount === 1 ? "parcela" : "parcelas"})`
-                  : "Total";
+                task.parcelado && task.numParcelas ? "Restante" : "Total";
 
               const el = document.createElement("div");
               el.className = "task" + (st.urgent ? " urgente" : "");

@@ -671,8 +671,7 @@
         position: fixed;
         inset: 0;
         z-index: 9000;
-        background: rgba(15, 23, 33, 0.68);
-        backdrop-filter: blur(2px);
+        background: rgba(31, 42, 55, 0.55);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -683,30 +682,14 @@
       }
       .modal-card {
         width: 100%;
-        max-width: 440px;
-        max-height: 85vh;
+        max-width: 420px;
+        max-height: 80vh;
         background: var(--surface);
         border-radius: var(--radius);
-        padding: 28px 24px 24px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+        padding: 22px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
         display: flex;
         flex-direction: column;
-        position: relative;
-        overflow: hidden;
-      }
-      .modal-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 6px;
-        background: repeating-linear-gradient(
-          90deg,
-          var(--teal) 0 18px,
-          var(--amber) 18px 36px,
-          var(--coral) 36px 54px
-        );
       }
       .modal-header {
         display: flex;
@@ -724,148 +707,59 @@
         word-break: break-word;
       }
       .modal-close {
-        background: #f2f4f7;
+        background: none;
         border: none;
-        color: var(--ink-soft);
-        font-size: 20px;
+        color: var(--ink-faint);
+        font-size: 22px;
         line-height: 1;
         cursor: pointer;
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
+        padding: 2px 6px;
+        border-radius: 6px;
         flex-shrink: 0;
       }
       .modal-close:hover {
-        background: var(--coral-bg);
+        background: #f2f4f7;
         color: var(--coral);
       }
       .modal-sub {
         font-family: "IBM Plex Mono", monospace;
-        font-size: 12.5px;
-        font-weight: 600;
-        color: var(--ink-soft);
-        margin-bottom: 16px;
-      }
-
-      .parcelas-resumo {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 16px;
-      }
-      .resumo-item {
-        flex: 1;
-        background: var(--bg);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 9px 8px;
-        text-align: center;
-      }
-      .resumo-item span {
-        display: block;
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
+        font-size: 12px;
         color: var(--ink-faint);
-        margin-bottom: 4px;
+        margin-bottom: 16px;
       }
-      .resumo-item strong {
-        display: block;
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 14px;
-        color: var(--ink);
-      }
-      .resumo-pago {
-        color: var(--teal) !important;
-      }
-      .resumo-restante.negativo {
-        color: var(--coral) !important;
-      }
-
       .parcelas-list {
         list-style: none;
         margin: 0;
         padding: 0;
         overflow-y: auto;
       }
-      .parcelas-list li.parcela-row {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 12px 10px;
-        margin-bottom: 8px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--surface);
-      }
-      .parcelas-list li.parcela-row:last-child {
-        margin-bottom: 0;
-      }
-      .parcelas-list li.parcela-row.paga {
-        background: var(--teal-bg);
-        border-color: var(--teal);
-      }
-      .parcela-info {
+      .parcelas-list li {
         display: flex;
         align-items: center;
         gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--line);
         font-family: "IBM Plex Mono", monospace;
         font-size: 14px;
       }
+      .parcelas-list li:last-child {
+        border-bottom: none;
+      }
       .parcela-num {
         color: var(--ink-faint);
-        font-weight: 600;
         flex-shrink: 0;
-        min-width: 32px;
+        min-width: 34px;
       }
       .parcela-data {
         color: var(--ink-soft);
-        font-weight: 600;
         flex: 1;
       }
       .parcela-valor {
-        font-weight: 700;
+        font-weight: 600;
         color: var(--ink);
       }
       .parcela-valor.negativo {
         color: var(--coral);
-      }
-      .parcela-pago-area {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding-left: 42px;
-      }
-      .btn-pago {
-        font-family: "Inter", sans-serif;
-        font-size: 12px;
-        font-weight: 700;
-        padding: 6px 14px;
-        border-radius: 20px;
-        border: 1.5px solid var(--line);
-        background: #fff;
-        color: var(--ink-soft);
-        cursor: pointer;
-      }
-      .btn-pago:hover {
-        border-color: var(--teal);
-        color: var(--teal);
-      }
-      .btn-pago.is-pago {
-        background: var(--teal);
-        border-color: var(--teal);
-        color: #fff;
-      }
-      .btn-pago.is-pago:hover {
-        background: #0c5f58;
-        border-color: #0c5f58;
-      }
-      .parcela-pago-data {
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 11.5px;
-        font-weight: 600;
-        color: var(--teal);
       }
 
       footer {
@@ -1383,7 +1277,6 @@
             </button>
           </div>
           <div class="modal-sub" id="parcelasModalSub"></div>
-          <div class="parcelas-resumo" id="parcelasResumo"></div>
           <ul class="parcelas-list" id="parcelasList"></ul>
         </div>
       </div>
@@ -1495,23 +1388,13 @@
             Number.isInteger(t.numParcelas) &&
             t.numParcelas >= 1 &&
             t.numParcelas <= 12;
-          const parcelado = !!t.parcelado && numParcelasValida;
-          const pagamentos = parcelado
-            ? Array.from({ length: t.numParcelas }, (_, i) => {
-                const p = Array.isArray(t.pagamentos) ? t.pagamentos[i] : null;
-                return typeof p === "string" && /^\d{4}-\d{2}-\d{2}$/.test(p)
-                  ? p
-                  : null;
-              })
-            : [];
           return {
             id: t.id ? String(t.id) : uid(),
             date: t.date && /^\d{4}-\d{2}-\d{2}$/.test(t.date) ? t.date : todayISO(),
             description: t.description ? String(t.description) : "",
             values,
-            parcelado,
+            parcelado: !!t.parcelado && numParcelasValida,
             numParcelas: numParcelasValida ? t.numParcelas : null,
-            pagamentos,
           };
         }
 
@@ -1667,32 +1550,6 @@
             valores.push(cents / 100);
           }
           return valores;
-        }
-
-        // Ajusta o array de pagamentos das parcelas para o novo número de
-        // parcelas, preservando o que já estava marcado como pago nas
-        // posições que continuam existindo.
-        function resizePagamentos(atual, n) {
-          const arr = Array.isArray(atual) ? atual : [];
-          return Array.from({ length: n }, (_, i) => arr[i] || null);
-        }
-
-        // Soma quanto já foi pago das parcelas de uma tarefa parcelada.
-        function valorPagoParcelas(task) {
-          if (!task.parcelado || !task.numParcelas) return 0;
-          const total = sumValues(task.values);
-          const valoresParcelas = splitInstallments(total, task.numParcelas);
-          const pagamentos = task.pagamentos || [];
-          return valoresParcelas.reduce(
-            (acc, valor, i) => acc + (pagamentos[i] ? valor : 0),
-            0,
-          );
-        }
-
-        // Saldo da tarefa: valor total menos o que já foi pago nas
-        // parcelas (para tarefas não parceladas, é o próprio total).
-        function saldoTarefa(task) {
-          return sumValues(task.values) - valorPagoParcelas(task);
         }
 
         function dayDiff(isoDate) {
@@ -1983,9 +1840,9 @@
 
           // Quando há um filtro de busca ativo, o total geral passa a
           // refletir apenas as tarefas filtradas — não o saldo do livro
-          // inteiro. Parcelas já pagas são descontadas do saldo.
+          // inteiro.
           const totalGeral = tarefasFiltradas.reduce(
-            (acc, t) => acc + saldoTarefa(t),
+            (acc, t) => acc + sumValues(t.values || []),
             0,
           );
           totalGeralEl.textContent = formatCurrency(totalGeral);
@@ -2024,18 +1881,7 @@
           tarefasFiltradas.forEach((task) => {
             try {
               const st = statusInfo(task.date);
-              const total = saldoTarefa(task);
-              const parcelasRestantesCount =
-                task.parcelado && task.numParcelas
-                  ? task.numParcelas -
-                    (Array.isArray(task.pagamentos)
-                      ? task.pagamentos.filter(Boolean).length
-                      : 0)
-                  : 0;
-              const totalLabel =
-                task.parcelado && task.numParcelas
-                  ? `Restante (${parcelasRestantesCount} ${parcelasRestantesCount === 1 ? "parcela" : "parcelas"})`
-                  : "Total";
+              const total = sumValues(task.values);
 
               const el = document.createElement("div");
               el.className = "task" + (st.urgent ? " urgente" : "");
@@ -2072,7 +1918,7 @@
           </div>
           <div class="task-desc">${escapeHtml(task.description)}</div>
           ${valuesHtml}
-          <div class="task-total${total < 0 ? " negativo" : ""}">${totalLabel}: ${formatCurrency(total)}</div>
+          <div class="task-total${total < 0 ? " negativo" : ""}">Total: ${formatCurrency(total)}</div>
           <div class="task-actions">
             <button class="btn-edit" data-action="edit" data-id="${task.id}">Editar</button>
             <button class="btn-delete" data-action="delete" data-id="${task.id}">Excluir</button>
@@ -2222,89 +2068,35 @@
           "parcelasModalTitle",
         );
         const parcelasModalSub = document.getElementById("parcelasModalSub");
-        const parcelasResumoEl = document.getElementById("parcelasResumo");
         const parcelasListEl = document.getElementById("parcelasList");
-        let parcelasModalTaskId = null;
 
-        function renderParcelasModal(task) {
+        function abrirParcelasModal(task) {
+          if (!task.parcelado || !task.numParcelas) return;
           const total = sumValues(task.values);
           const n = task.numParcelas;
           const valoresParcelas = splitInstallments(total, n);
-          if (!Array.isArray(task.pagamentos) || task.pagamentos.length !== n) {
-            task.pagamentos = resizePagamentos(task.pagamentos, n);
-          }
-          const pagamentos = task.pagamentos;
 
-          parcelasModalTitle.textContent = task.description || "Parcelas";
-          parcelasModalSub.textContent = `Compra em ${formatDateBR(task.date)} · ${n}x`;
+          parcelasModalTitle.textContent =
+            task.description || "Parcelas";
+          parcelasModalSub.textContent = `Compra em ${formatDateBR(task.date)} · ${n}x de aproximadamente ${formatCurrency(total / n)}`;
 
-          let valorPago = 0;
           parcelasListEl.innerHTML = valoresParcelas
             .map((valor, i) => {
               const dataParcela = addDays(task.date, 30 * i);
-              const dataPagamento = pagamentos[i];
-              const pago = !!dataPagamento;
-              if (pago) valorPago += valor;
-              return `<li class="parcela-row${pago ? " paga" : ""}">
-                <div class="parcela-info">
-                  <span class="parcela-num">${i + 1}/${n}</span>
-                  <span class="parcela-data">${formatDateBR(dataParcela)}</span>
-                  <span class="parcela-valor${valor < 0 ? " negativo" : ""}">${formatCurrency(valor)}</span>
-                </div>
-                <div class="parcela-pago-area">
-                  <button type="button" class="btn-pago${pago ? " is-pago" : ""}" data-index="${i}">
-                    ${pago ? "&#10003; Pago" : "Marcar como pago"}
-                  </button>
-                  ${pago ? `<span class="parcela-pago-data">em ${formatDateBR(dataPagamento)}</span>` : ""}
-                </div>
+              return `<li>
+                <span class="parcela-num">${i + 1}/${n}</span>
+                <span class="parcela-data">${formatDateBR(dataParcela)}</span>
+                <span class="parcela-valor${valor < 0 ? " negativo" : ""}">${formatCurrency(valor)}</span>
               </li>`;
             })
             .join("");
 
-          const restante = total - valorPago;
-          parcelasResumoEl.innerHTML = `
-            <div class="resumo-item">
-              <span>Total</span>
-              <strong>${formatCurrency(total)}</strong>
-            </div>
-            <div class="resumo-item">
-              <span>Pago</span>
-              <strong class="resumo-pago">${formatCurrency(valorPago)}</strong>
-            </div>
-            <div class="resumo-item">
-              <span>Restante</span>
-              <strong class="resumo-restante${restante < 0 ? " negativo" : ""}">${formatCurrency(restante)}</strong>
-            </div>
-          `;
-        }
-
-        function abrirParcelasModal(task) {
-          if (!task.parcelado || !task.numParcelas) return;
-          parcelasModalTaskId = task.id;
-          renderParcelasModal(task);
           parcelasModal.removeAttribute("hidden");
         }
 
         function fecharParcelasModal() {
           parcelasModal.setAttribute("hidden", "");
-          parcelasModalTaskId = null;
         }
-
-        parcelasListEl.addEventListener("click", (e) => {
-          const btn = e.target.closest(".btn-pago");
-          if (!btn) return;
-          const task = tasks.find((t) => t.id === parcelasModalTaskId);
-          if (!task) return;
-          const idx = parseInt(btn.dataset.index, 10);
-          if (!Array.isArray(task.pagamentos)) {
-            task.pagamentos = resizePagamentos(task.pagamentos, task.numParcelas);
-          }
-          const jaPago = !!task.pagamentos[idx];
-          task.pagamentos[idx] = jaPago ? null : todayISO();
-          saveTasks();
-          renderParcelasModal(task);
-          render();
-        });
 
         document
           .getElementById("btnFecharParcelas")
@@ -2454,9 +2246,6 @@
               task.values = values;
               task.parcelado = !!numParcelas;
               task.numParcelas = numParcelas;
-              task.pagamentos = numParcelas
-                ? resizePagamentos(task.pagamentos, numParcelas)
-                : [];
             }
           } else {
             // Nova tarefa entra no início da lista
@@ -2467,9 +2256,6 @@
               values,
               parcelado: !!numParcelas,
               numParcelas: numParcelas,
-              pagamentos: numParcelas
-                ? Array.from({ length: numParcelas }, () => null)
-                : [],
             });
           }
 
