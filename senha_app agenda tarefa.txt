@@ -4,6 +4,6 @@ pergunta: aniver
 data 4 dígitos ou cao
 password: 1205
 
-agenda-de-tarefas_login_olhinho(8) que é o index atual
+agenda-de-tarefas_login_olhinho(8)
 
 agenda-de-tarefas_parce.html
