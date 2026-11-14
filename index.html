@@ -2910,6 +2910,7 @@
         // ---- Sair (bloqueia o app novamente) ----
         document.getElementById("btnSair").addEventListener("click", () => {
           sessionRemove(SESSION_KEY);
+          alarmesVistos = []; // próximo login dispara o alarme de novo
           showAuthView("viewLogin");
           openAuthOverlay();
         });
@@ -2930,8 +2931,6 @@
         });
 
         // ---------- Alarme sonoro + aviso 1 dia antes ----------
-        const ALARME_KEY = "agenda_alarmes_vistos_v1";
-        let alarmesVistosMemoria = [];
         const alarmeModal = document.getElementById("alarmeModal");
         const alarmeLista = document.getElementById("alarmeLista");
         const alarmeSub = document.getElementById("alarmeModalSub");
@@ -2943,22 +2942,16 @@
         let alarmeTimer = null;
         let alarmeCiclos = 0;
 
-        // Guarda quais avisos já foram reconhecidos (chave = id da tarefa +
-        // data), para o modal não reaparecer a cada recarga da página.
+        // Avisos já reconhecidos APENAS nesta sessão de uso (fica em memória).
+        // Assim o alarme não repete a cada minuto depois de fechado, mas
+        // dispara de novo toda vez que a página é aberta/recarregada ou que
+        // você entra no sistema novamente (login). Chave = id + data.
+        let alarmesVistos = [];
         function getAlarmesVistos() {
-          try {
-            const raw = localStorage.getItem(ALARME_KEY);
-            const arr = raw ? JSON.parse(raw) : [];
-            return Array.isArray(arr) ? arr : [];
-          } catch (e) {
-            return alarmesVistosMemoria;
-          }
+          return alarmesVistos;
         }
         function salvarAlarmesVistos(arr) {
-          alarmesVistosMemoria = arr;
-          try {
-            localStorage.setItem(ALARME_KEY, JSON.stringify(arr));
-          } catch (e) {}
+          alarmesVistos = arr;
         }
         function chaveAlarme(t) {
           return t.id + "|" + t.date;
