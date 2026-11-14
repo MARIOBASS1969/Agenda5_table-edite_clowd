@@ -614,6 +614,7 @@
         display: flex;
         gap: 8px;
         margin-top: 12px;
+        flex-wrap: wrap;
       }
       .task-actions button {
         font-family: "Inter", sans-serif;
@@ -866,6 +867,102 @@
         font-size: 11.5px;
         font-weight: 600;
         color: var(--teal);
+      }
+
+      /* ---------- Alarme (aviso 1 dia antes) ---------- */
+      .btn-alarme {
+        background: var(--amber-bg);
+        border: 2px solid var(--line);
+        color: var(--amber);
+      }
+      .btn-alarme:hover {
+        border-color: var(--amber);
+      }
+      .btn-alarme.off {
+        background: #f2f4f7;
+        color: var(--ink-faint);
+      }
+
+      .alarme-overlay {
+        z-index: 9500;
+      }
+      @keyframes alarmeBalanco {
+        0%,
+        100% {
+          transform: rotate(0);
+        }
+        15% {
+          transform: rotate(14deg);
+        }
+        30% {
+          transform: rotate(-12deg);
+        }
+        45% {
+          transform: rotate(8deg);
+        }
+        60% {
+          transform: rotate(-6deg);
+        }
+        75% {
+          transform: rotate(0);
+        }
+      }
+      .alarme-sino {
+        display: inline-block;
+        transform-origin: 50% 0;
+        animation: alarmeBalanco 1.6s infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .alarme-sino {
+          animation: none;
+        }
+      }
+      .alarme-lista {
+        list-style: none;
+        margin: 0 0 16px;
+        padding: 0;
+        overflow-y: auto;
+      }
+      .alarme-item {
+        border: 1px solid var(--coral);
+        background: var(--coral-bg);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+      }
+      .alarme-item:last-child {
+        margin-bottom: 0;
+      }
+      .alarme-item-data {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--coral);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .alarme-item-desc {
+        font-family: "Fraunces", serif;
+        font-weight: 600;
+        font-size: 16px;
+        margin: 4px 0;
+        color: var(--ink);
+        word-break: break-word;
+      }
+      .alarme-item-valor {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-soft);
+      }
+      .alarme-item-valor.negativo {
+        color: var(--coral);
+      }
+      .alarme-acoes {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
       }
 
       footer {
@@ -1389,6 +1486,41 @@
       </div>
 
       <div
+        id="alarmeModal"
+        class="modal-overlay alarme-overlay"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="alarmeModalTitle"
+        hidden
+      >
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2 id="alarmeModalTitle">
+              <span class="alarme-sino">🔔</span> Tarefas para amanhã
+            </h2>
+            <button
+              type="button"
+              class="modal-close"
+              id="btnFecharAlarme"
+              aria-label="Fechar"
+            >
+              &times;
+            </button>
+          </div>
+          <div class="modal-sub" id="alarmeModalSub"></div>
+          <ul class="alarme-lista" id="alarmeLista"></ul>
+          <div class="alarme-acoes">
+            <button type="button" class="btn btn-ghost" id="btnSilenciarAlarme">
+              Silenciar som
+            </button>
+            <button type="button" class="btn btn-primary" id="btnEntendiAlarme">
+              Entendi
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
         id="avisoStorage"
         style="display: none; background: var(--amber-bg); border: 1px solid var(--amber); color: var(--amber); border-radius: var(--radius); padding: 12px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; margin-bottom: 20px;"
       >
@@ -1512,6 +1644,7 @@
             parcelado,
             numParcelas: numParcelasValida ? t.numParcelas : null,
             pagamentos,
+            alarme: t.alarme !== false,
           };
         }
 
@@ -2060,6 +2193,9 @@
                   ? `<button class="btn-parcelas" data-action="parcelas" data-id="${task.id}">Mostrar parcelas</button>`
                   : "";
 
+              const alarmeOn = task.alarme !== false;
+              const alarmeBtnHtml = `<button class="btn-alarme${alarmeOn ? "" : " off"}" data-action="alarme" data-id="${task.id}" title="Ligar/desligar o alarme desta tarefa">${alarmeOn ? "🔔 Alarme ligado" : "🔕 Alarme desligado"}</button>`;
+
               el.innerHTML = `
         <div class="task-tab ${st.cls}${st.urgent ? " urgente" : ""}"></div>
         <div class="task-body">
@@ -2077,6 +2213,7 @@
             <button class="btn-edit" data-action="edit" data-id="${task.id}">Editar</button>
             <button class="btn-delete" data-action="delete" data-id="${task.id}">Excluir</button>
             ${parcelasBtnHtml}
+            ${alarmeBtnHtml}
           </div>
         </div>
       `;
@@ -2213,6 +2350,8 @@
           } else if (btn.dataset.action === "parcelas") {
             const task = tasks.find((t) => t.id === id);
             if (task) abrirParcelasModal(task);
+          } else if (btn.dataset.action === "alarme") {
+            alternarAlarme(id);
           }
         });
 
@@ -2470,12 +2609,14 @@
               pagamentos: numParcelas
                 ? Array.from({ length: numParcelas }, () => null)
                 : [],
+              alarme: true,
             });
           }
 
           saveTasks();
           resetForm();
           render();
+          verificarAlarmes();
         });
 
         // ---------- Autenticação: telas e formulários ----------
@@ -2518,6 +2659,7 @@
         function closeAuthOverlay() {
           authOverlay.setAttribute("hidden", "");
           inpDesc.focus();
+          verificarAlarmes();
         }
 
         function initAuth() {
@@ -2787,6 +2929,206 @@
           });
         });
 
+        // ---------- Alarme sonoro + aviso 1 dia antes ----------
+        const ALARME_KEY = "agenda_alarmes_vistos_v1";
+        let alarmesVistosMemoria = [];
+        const alarmeModal = document.getElementById("alarmeModal");
+        const alarmeLista = document.getElementById("alarmeLista");
+        const alarmeSub = document.getElementById("alarmeModalSub");
+        const btnSilenciarAlarme = document.getElementById(
+          "btnSilenciarAlarme",
+        );
+        let alarmeAtual = [];
+        let audioCtx = null;
+        let alarmeTimer = null;
+        let alarmeCiclos = 0;
+
+        // Guarda quais avisos já foram reconhecidos (chave = id da tarefa +
+        // data), para o modal não reaparecer a cada recarga da página.
+        function getAlarmesVistos() {
+          try {
+            const raw = localStorage.getItem(ALARME_KEY);
+            const arr = raw ? JSON.parse(raw) : [];
+            return Array.isArray(arr) ? arr : [];
+          } catch (e) {
+            return alarmesVistosMemoria;
+          }
+        }
+        function salvarAlarmesVistos(arr) {
+          alarmesVistosMemoria = arr;
+          try {
+            localStorage.setItem(ALARME_KEY, JSON.stringify(arr));
+          } catch (e) {}
+        }
+        function chaveAlarme(t) {
+          return t.id + "|" + t.date;
+        }
+
+        // ----- Som (Web Audio API, sem arquivos externos) -----
+        function getAudioCtx() {
+          if (!audioCtx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            try {
+              audioCtx = new AC();
+            } catch (e) {
+              return null;
+            }
+          }
+          return audioCtx;
+        }
+
+        // Navegadores só liberam áudio após uma interação do usuário.
+        // O login (clique/digitação) já destrava; isto garante o resto.
+        function desbloquearAudio() {
+          const ctx = getAudioCtx();
+          if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+        }
+        ["pointerdown", "keydown", "touchstart"].forEach((ev) =>
+          document.addEventListener(ev, desbloquearAudio, { passive: true }),
+        );
+
+        function bipe(ctx, inicio, freq, dur) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, inicio);
+          gain.gain.exponentialRampToValueAtTime(0.35, inicio + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, inicio + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(inicio);
+          osc.stop(inicio + dur + 0.05);
+        }
+
+        function tocarSequencia() {
+          const ctx = getAudioCtx();
+          if (!ctx || ctx.state !== "running") return false;
+          const t = ctx.currentTime + 0.05;
+          bipe(ctx, t, 880, 0.22);
+          bipe(ctx, t + 0.3, 1175, 0.22);
+          bipe(ctx, t + 0.6, 880, 0.22);
+          bipe(ctx, t + 0.9, 1175, 0.35);
+          return true;
+        }
+
+        function tocarBipeTeste() {
+          const ctx = getAudioCtx();
+          if (!ctx) return;
+          const go = () => bipe(ctx, ctx.currentTime + 0.02, 880, 0.25);
+          if (ctx.state === "suspended") ctx.resume().then(go).catch(() => {});
+          else go();
+        }
+
+        function iniciarAlarmeSonoro() {
+          pararAlarmeSonoro();
+          alarmeCiclos = 0;
+          btnSilenciarAlarme.style.display = "";
+          const tick = () => {
+            const ctx = getAudioCtx();
+            if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+            if (tocarSequencia()) {
+              alarmeCiclos++;
+              if (alarmeCiclos >= 15) pararAlarmeSonoro(); // ~35s de alarme
+            }
+          };
+          tick();
+          alarmeTimer = setInterval(tick, 2200);
+        }
+
+        function pararAlarmeSonoro() {
+          if (alarmeTimer) {
+            clearInterval(alarmeTimer);
+            alarmeTimer = null;
+          }
+        }
+
+        // ----- Modal -----
+        function abrirAlarmeModal(lista) {
+          alarmeAtual = lista;
+          alarmeSub.textContent =
+            lista.length === 1
+              ? "1 tarefa vence amanhã."
+              : `${lista.length} tarefas vencem amanhã.`;
+          alarmeLista.innerHTML = lista
+            .map((t) => {
+              const saldo = saldoTarefa(t);
+              return `<li class="alarme-item">
+                <div class="alarme-item-data">${formatDateBR(t.date)} · amanhã</div>
+                <div class="alarme-item-desc">${escapeHtml(t.description)}</div>
+                <div class="alarme-item-valor${saldo < 0 ? " negativo" : ""}">${formatCurrency(saldo)}</div>
+              </li>`;
+            })
+            .join("");
+          alarmeModal.removeAttribute("hidden");
+          iniciarAlarmeSonoro();
+          setTimeout(
+            () => document.getElementById("btnEntendiAlarme").focus(),
+            0,
+          );
+        }
+
+        function fecharAlarmeModal() {
+          pararAlarmeSonoro();
+          const vistos = getAlarmesVistos();
+          alarmeAtual.forEach((t) => {
+            const k = chaveAlarme(t);
+            if (!vistos.includes(k)) vistos.push(k);
+          });
+          salvarAlarmesVistos(vistos.slice(-300));
+          alarmeAtual = [];
+          alarmeModal.setAttribute("hidden", "");
+        }
+
+        function verificarAlarmes() {
+          try {
+            if (sessionGet(SESSION_KEY) !== "1") return; // só depois do login
+            if (!alarmeModal.hasAttribute("hidden")) return; // já aberto
+            const vistos = getAlarmesVistos();
+            const pendentes = tasks.filter(
+              (t) =>
+                t.alarme !== false &&
+                dayDiff(t.date) === 1 &&
+                !vistos.includes(chaveAlarme(t)),
+            );
+            if (pendentes.length) abrirAlarmeModal(pendentes);
+          } catch (e) {
+            console.error("Falha ao verificar alarmes:", e);
+          }
+        }
+
+        function alternarAlarme(id) {
+          const task = tasks.find((t) => t.id === id);
+          if (!task) return;
+          task.alarme = task.alarme === false; // desligado -> ligado, e vice-versa
+          saveTasks();
+          render();
+          if (task.alarme) {
+            tocarBipeTeste(); // confirma que o som funciona
+            verificarAlarmes();
+          }
+        }
+
+        document
+          .getElementById("btnEntendiAlarme")
+          .addEventListener("click", fecharAlarmeModal);
+        document
+          .getElementById("btnFecharAlarme")
+          .addEventListener("click", fecharAlarmeModal);
+        btnSilenciarAlarme.addEventListener("click", () => {
+          pararAlarmeSonoro();
+          btnSilenciarAlarme.style.display = "none";
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && !alarmeModal.hasAttribute("hidden")) {
+            fecharAlarmeModal();
+          }
+        });
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) verificarAlarmes();
+        });
+
         // ---------- Init ----------
         loadTasks();
         addValueRow();
@@ -2799,9 +3141,11 @@
         }
 
         initAuth();
+        verificarAlarmes();
 
         // refresh day counters periodically (in case the page stays open across midnight)
         setInterval(render, 60 * 1000);
+        setInterval(verificarAlarmes, 60 * 1000);
       })();
     </script>
   </body>
