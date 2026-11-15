@@ -1496,7 +1496,8 @@
         <div class="modal-card">
           <div class="modal-header">
             <h2 id="alarmeModalTitle">
-              <span class="alarme-sino">🔔</span> Tarefas para amanhã
+              <span class="alarme-sino">🔔</span>
+              <span id="alarmeModalTitleTxt">Lembrete de tarefas</span>
             </h2>
             <button
               type="button"
@@ -2954,7 +2955,7 @@
           alarmesVistos = arr;
         }
         function chaveAlarme(t) {
-          return t.id + "|" + t.date;
+          return t.id + "|" + t.date + "|" + dayDiff(t.date);
         }
 
         // ----- Som (Web Audio API, sem arquivos externos) -----
@@ -3039,16 +3040,29 @@
 
         // ----- Modal -----
         function abrirAlarmeModal(lista) {
+          // hoje primeiro, depois amanhã
+          lista = lista.slice().sort((a, b) => dayDiff(a.date) - dayDiff(b.date));
           alarmeAtual = lista;
-          alarmeSub.textContent =
-            lista.length === 1
-              ? "1 tarefa vence amanhã."
-              : `${lista.length} tarefas vencem amanhã.`;
+          const nHoje = lista.filter((t) => dayDiff(t.date) === 0).length;
+          const nAmanha = lista.length - nHoje;
+          document.getElementById("alarmeModalTitleTxt").textContent =
+            nHoje && nAmanha
+              ? "Tarefas para hoje e amanhã"
+              : nHoje
+                ? "Tarefas para hoje"
+                : "Tarefas para amanhã";
+          const partes = [];
+          if (nHoje)
+            partes.push(nHoje === 1 ? "1 tarefa vence hoje" : `${nHoje} tarefas vencem hoje`);
+          if (nAmanha)
+            partes.push(nAmanha === 1 ? "1 tarefa vence amanhã" : `${nAmanha} tarefas vencem amanhã`);
+          alarmeSub.textContent = partes.join(" · ") + ".";
           alarmeLista.innerHTML = lista
             .map((t) => {
               const saldo = saldoTarefa(t);
+              const quando = dayDiff(t.date) === 0 ? "hoje" : "amanhã";
               return `<li class="alarme-item">
-                <div class="alarme-item-data">${formatDateBR(t.date)} · amanhã</div>
+                <div class="alarme-item-data">${formatDateBR(t.date)} · ${quando}</div>
                 <div class="alarme-item-desc">${escapeHtml(t.description)}</div>
                 <div class="alarme-item-valor${saldo < 0 ? " negativo" : ""}">${formatCurrency(saldo)}</div>
               </li>`;
@@ -3082,7 +3096,7 @@
             const pendentes = tasks.filter(
               (t) =>
                 t.alarme !== false &&
-                dayDiff(t.date) === 1 &&
+                (dayDiff(t.date) === 1 || dayDiff(t.date) === 0) &&
                 !vistos.includes(chaveAlarme(t)),
             );
             if (pendentes.length) abrirAlarmeModal(pendentes);
